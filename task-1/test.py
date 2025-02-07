@@ -14,6 +14,7 @@ def read_data(file_path=""):
 
 def testdata_kmeans(test_file):
     if test_file == "":
+        print("Using random data")
         # use random data
         N = 1000
         D = 100
@@ -21,6 +22,7 @@ def testdata_kmeans(test_file):
         K = 10
         return N, D, A, K
     else:
+        print("Using data from", test_file)
         # read n, d, a_file, x_file, k from test_file.json
         with open(test_file, "r") as f:
             data = json.load(f)
