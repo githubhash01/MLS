@@ -1,11 +1,4 @@
-import torch
-#import cupy as cp
-#import triton
 import numpy as np
-import time
-import json
-from test import testdata_kmeans, testdata_knn, testdata_ann
-from collections import Counter
 
 # ------------------------------------------------------------------------------------------------
 # Importing JAX for GPU acceleration
@@ -17,9 +10,8 @@ from jax import jit
 # Your Task 1.1 code here
 # ------------------------------------------------------------------------------------------------
 
-# You can create any kernel here
-# def distance_kernel(X, Y, D):
-#     pass
+
+# Distance Functions
 
 """
 Cosine Similarity: 
@@ -70,61 +62,16 @@ d(X, Y) = |X - Y|
 def distance_manhattan(X, Y):
     return np.abs(X - Y)
 
+@jit
+def distance_manhattan_jax(X, Y):
+    return jnp.abs(X - Y)
+
 # ------------------------------------------------------------------------------------------------
 # Your Task 1.2 code here
 # ------------------------------------------------------------------------------------------------
 
-# You can create any kernel here
-
-def our_knn(N, D, A, X, K):
-    pass
-
-# ------------------------------------------------------------------------------------------------
-# Your Task 2.1 code here
-# ------------------------------------------------------------------------------------------------
-
-# You can create any kernel here
-# def distance_kernel(X, Y, D):
-#     pass
-
-# ------------------------------------------------------------------------------------------------
 # Standard KMeans Algorithm
-# ------------------------------------------------------------------------------------------------
-"""
-KMeans Algorithm
 
-Input:
-
-N: Number of vectors
-D: Dimension of vectors
-A[N, D]: A collection of vectors
-X: A specified vector
-K: Top K
-
-Returns:
-centroids - List of centroids
-
-Algorithm Description:
-
-1. Initialize:
-   - Randomly select K points from dataset as initial centroids
-
-2. REPEAT:
-   a. Assignment step:
-      - For each data point:
-         - Calculate distance to each centroid
-         - Assign point to the closest centroid's cluster
-
-   b. Update step:
-      - For each cluster:
-         - Calculate mean of all points in cluster
-         - Set new centroid position to cluster mean
-
-3. UNTIL:
-   - Centroids no longer move significantly OR
-   - Maximum iterations reached
-
-"""
 def calculate_centroids(clusters):
     # Calculate mean of all points in cluster
     return [np.mean(cluster, axis=0) for cluster in clusters]
@@ -173,6 +120,12 @@ def kmeans(num_vectors, vector_dimension, dataset, num_clusters, distance_functi
 
     return centroids
 
+# ------------------------------------------------------------------------------------------------
+# Your Task 2.1 code here
+# ------------------------------------------------------------------------------------------------
+
+# KNN Classifier
+
 def knn_classifier(num_vectors, vector_dimension , dataset, query, k, distance_function=distance_l2):
 
     # Calculate distance between query and all vectors in dataset
@@ -188,7 +141,7 @@ def knn_classifier(num_vectors, vector_dimension , dataset, query, k, distance_f
 # Your Task 2.2 code here
 # ------------------------------------------------------------------------------------------------
 
-# You can create any kernel here
+# Approximate Nearest Neighbour Classifier
 
 def approximate_nearest_neighbour(N, D, A, X, K):
     # Build up voronoi diagram using kmeans algorithm and then only calculate distance for the points in the same voronoi cell
@@ -210,36 +163,3 @@ def approximate_nearest_neighbour(N, D, A, X, K):
     # we only want the top K nearest vectors
     return nearest_vectors[:K]
 
-# -----------------------------------------------------------------------------------------------
-# Test your code here
-# ------------------------------------------------------------------------------------------------
-
-# Example
-def test_kmeans():
-    N, D, A, K = testdata_kmeans("")
-    #kmeans_result = our_kmeans(N, D, A, K)
-    kmeans_result = kmeans(N, D, A, K)
-    print(kmeans_result)
-
-def test_knn():
-    N, D, A, X, K = testdata_knn("")
-    knn_result = knn_classifier(N, D, A, X, K)
-    print(knn_result)
-    
-def test_ann():
-    N, D, A, X, K = testdata_ann("")
-    ann_result = approximate_nearest_neighbour(N, D, A, X, K)
-    print(ann_result)
-    
-def recall_rate(list1, list2):
-    """
-    Calculate the recall rate of two lists
-    list1[K]: The top K nearest vectors ID
-    list2[K]: The top K nearest vectors ID
-    """
-    return len(set(list1) & set(list2)) / len(list1)
-
-if __name__ == "__main__":
-    test_kmeans()
-    test_knn()
-    test_ann()
