@@ -76,6 +76,15 @@ def calculate_centroids(clusters):
     # Calculate mean of all points in cluster
     return [np.mean(cluster, axis=0) for cluster in clusters]
 
+
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+
+def kmeans_sklearn(N, D, A, K):
+    kmeans = KMeans(n_clusters=K)
+    kmeans.fit(A)
+    return kmeans.cluster_centers_
+
 def kmeans(num_vectors, vector_dimension, dataset, num_clusters, distance_function=distance_l2, threshold=1e-5, max_iterations=1000):
     """
     Input:
@@ -115,9 +124,6 @@ def kmeans(num_vectors, vector_dimension, dataset, num_clusters, distance_functi
 
         centroids = new_centroids
 
-        # Clear clusters
-        clusters = [[] for _ in range(num_clusters)]
-
     return centroids
 
 # ------------------------------------------------------------------------------------------------
@@ -146,20 +152,23 @@ def knn_classifier(num_vectors, vector_dimension , dataset, query, k, distance_f
 def approximate_nearest_neighbour(N, D, A, X, K):
     # Build up voronoi diagram using kmeans algorithm and then only calculate distance for the points in the same voronoi cell
 
+    num_clusters = int(np.sqrt(N))  # Rule of thumb: sqrt(N) clusters
     # Calculate centroids using kmeans
-    centroids = kmeans(N, D, A, K)
+    centroids = kmeans(N, D, A, num_clusters)
 
     # Calculate distance between query and all centroids
-    distances = [distance_l2(X, centroid) for centroid in centroids]
+    distances_to_centroids = [distance_l2(X, centroid) for centroid in centroids]
 
-    # Get the nearest 2 centroids
-    nearest_centroids = np.argsort(distances)[:2]
+    # Get the nearest 3 centroids
+    nearest_centroids = np.argsort(distances_to_centroids)[:3]
 
     # Only find the nearest neighbours for the points in the two nearest centroids
-    nearest_vectors = []
+    candidate_points = []
     for centroid in nearest_centroids:
-        nearest_vectors.extend(knn_classifier(N, D, A, X, K, distance_function=distance_l2))
+        candidate_points.extend(knn_classifier(N, D, A, centroids[centroid], K))
 
-    # we only want the top K nearest vectors
-    return nearest_vectors[:K]
+    # select top K nearest vectors
+    distances = [distance_l2(X, vector) for vector in A[candidate_points]]
+    nearest_vectors = np.argsort(distances)[:K]
 
+    return nearest_vectors
