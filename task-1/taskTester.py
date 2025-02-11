@@ -55,7 +55,7 @@ def test_accuracy(N, D, K, algorithm):
     start = time.perf_counter()
     calculated_centroids = algorithm(N, D, A, K)
     end = time.perf_counter()
-    print(f"Time taken: {end - start} seconds")
+    print(f"Time taken by JAX: {end - start} seconds")
 
     plt.figure(figsize=(8, 6))
     plt.scatter(A[:, 0], A[:, 1], alpha=0.6, label="Data Points")

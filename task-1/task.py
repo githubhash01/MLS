@@ -102,7 +102,6 @@ def kmeans(N, D, A, K, max_iter=1000):
     Returns:
     - centroids: Final cluster centroids as a NumPy array (KxD)
     """
-    inertia = np.inf
 
     def kmeans_plus_plus_init(A, K):
         """K-means++ initialization for better centroid selection."""
@@ -127,20 +126,12 @@ def kmeans(N, D, A, K, max_iter=1000):
             for cluster in clusters
         ])
 
-        new_inertia = sum([
-            np.sum(np.linalg.norm(cluster - new_centroids[j], axis=1))
-            for j, cluster in enumerate(clusters)
-        ])
-
-        print(centroids, new_inertia)
-
         # Convergence check: Ensure centroids do not move significantly
         if np.linalg.norm(new_centroids - centroids, axis=1).max() < 1e-6:
             print("Converged")
             return new_centroids
 
         centroids = new_centroids
-        inertia = new_inertia
 
     return centroids
 
@@ -192,7 +183,7 @@ def kmeans_jax(N, D, A, K, max_iter=200):
         new_centroids = sums / tally[:, None]
 
         # check for convergence
-        if jnp.all(jnp.linalg.norm(new_centroids - centroids, axis=1) < 1e-6):
+        if jnp.linalg.norm(new_centroids - centroids, axis=1).max() < 1e-6:
             return new_centroids
 
         centroids = new_centroids
