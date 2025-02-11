@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------------------------
 # Test your code here
 # ------------------------------------------------------------------------------------------------
-from task import kmeans_sklearn, kmeans, knn_classifier, approximate_nearest_neighbour
+from task import kmeans_sklearn, kmeans, knn_classifier, approximate_nearest_neighbour, kmeans_jax
 import numpy as np
 import time
 
@@ -15,7 +15,6 @@ K = 10 # number of nearest neighbours
 # Example
 def test_kmeans():
     kmeans_result = kmeans(N, D, A, K)
-    print(f"KMeans result: {kmeans_result}")
     return kmeans_result
 
 def test_knn():
@@ -44,10 +43,23 @@ def recall_rate(list1, list2):
 
 if __name__ == "__main__":
 
+    """
     centroids = kmeans_sklearn(N, D, A, K)
-    print(f"Centroids: {centroids}")
-    #knn_result = test_knn()
-    #ann_result = test_ann()
+    # order the centroids in the same order
+    ordered_centroids = sorted(centroids, key=lambda x: np.sum(x))
+    custom_centroids = test_kmeans()
+    ordered_custom_centroids = sorted(custom_centroids, key=lambda x: np.sum(x))
 
-    #recall_rate = recall_rate(knn_result, ann_result)
-    #print(f"Recall rate: {recall_rate * 100}%")
+    print(len(centroids), len(custom_centroids))
+
+    # Compare the centroids by printing the distance for each of the centroids
+    for centroid in zip(ordered_centroids, ordered_custom_centroids):
+        print(np.linalg.norm(centroid[0] - centroid[1]))
+    """
+
+    centroids = kmeans_sklearn(N, D, A, K)
+    print("Sklearn done")
+    centroids_jax = kmeans_jax(N, D, A, K)
+    print("Jax done")
+    centroids_numpy = kmeans(N, D, A, K)
+    print("Numpy done")
