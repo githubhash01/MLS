@@ -1,48 +1,74 @@
-# -----------------------------------------------------------------------------------------------
-# Test your code here
-# ------------------------------------------------------------------------------------------------
-from task import kmeans_sklearn, kmeans, knn_classifier, approximate_nearest_neighbour, kmeans_jax
+from task import kmeans, kmeans_jax, kmeans_jax, kmeans_sklearn
+from sklearn.datasets import make_blobs
+import matplotlib.pyplot as plt
 import numpy as np
 import time
 
-
-from sklearn.datasets import make_blobs
-import matplotlib.pyplot as plt
-
-
-
-def generate_testing_data(N, D, K):
+def generate_testing_data(N, D, K, cluster_std=0.5, random_state=42):
     """
-    Generate synthetic dataset with well-separated clusters
+    Generate synthetic dataset using sklearn's make_blobs and visualize the clusters.
+
+    Parameters:
+    - N: Number of samples
+    - D: Number of dimensions
+    - K: Number of clusters
+    - cluster_std: Standard deviation of clusters (controls separation)
+    - random_state: Seed for reproducibility
+
+    Returns:
+    - A: Generated dataset (NxD)
+    - cluster_centers: The true cluster centers used for generation
     """
-    #A, true_labels = make_blobs(n_samples=N, n_features=D, centers=K, cluster_std=0.5, random_state=42)
-    cluster_centers = np.array([[5, 5], [-5, -5], [5, -5]])
-    A = np.vstack([center + 0.5 * np.random.randn(N // K, D) for center in cluster_centers])
-    # Visualize the dataset
-    #plt.scatter(A[:, 0], A[:, 1])
-    #plt.title("Manually Defined Clusters")
-    #plt.show()
+    A, labels, cluster_centers = make_blobs(
+        n_samples=N,
+        n_features=D,
+        centers=K,
+        cluster_std=cluster_std,
+        random_state=random_state,
+        return_centers=True
+    )
+    cluster_centers = np.array(cluster_centers).reshape(K, D)
     return A, cluster_centers
 
-# Example
-def test_kmeans():
-    kmeans_result = kmeans(N, D, A, K)
-    return kmeans_result
 
-def test_knn():
-    # time the function
-    start_time = time.perf_counter()
-    knn_result = knn_classifier(N, D, A, X, K)
-    end_time = time.perf_counter()
-    print(f"Time taken KNN: {end_time - start_time}")
-    return knn_result
 
-def test_ann():
-    start_time = time.perf_counter()
-    ann_result = approximate_nearest_neighbour(N, D, A, X, K)
-    end_time = time.perf_counter()
-    print(f"Time taken ANN: {end_time - start_time}")
-    return ann_result
+def test_accuracy(N, D, K, algorithm):
+    """
+    Generate test data, run both K-Means implementations, and plot the results.
+    """
+    A, true_centers = generate_testing_data(N, D, K)
+
+    # baseline is using the sklearn implementation
+    start = time.perf_counter()
+    calculated_centroids_sklearn = kmeans_sklearn(N, D, A, K)
+    end = time.perf_counter()
+    print(f"Time taken by Sklearn: {end - start} seconds")
+
+    # another test is using the numpy implementation
+
+    start = time.perf_counter()
+    calculated_centroids = kmeans(N, D, A, K)
+    end = time.perf_counter()
+    print(f"Time taken by Numpy: {end - start} seconds")
+
+    # time the algorithm
+    start = time.perf_counter()
+    calculated_centroids = algorithm(N, D, A, K)
+    end = time.perf_counter()
+    print(f"Time taken: {end - start} seconds")
+
+    plt.figure(figsize=(8, 6))
+    plt.scatter(A[:, 0], A[:, 1], alpha=0.6, label="Data Points")
+    plt.scatter(true_centers[:, 0], true_centers[:, 1], color='red', marker='X', s=200, label="True Centers")
+    plt.scatter(calculated_centroids[:, 0], calculated_centroids[:, 1], color='green', marker='D', s=150, label="Custom KMeans")
+    plt.legend()
+    plt.title("Comparison of True Centers, Sklearn, and Custom K-Means")
+    plt.show()
+
+    return {
+        "true_centers": true_centers,
+        "calculated_centroids": calculated_centroids
+    }
 
 def recall_rate(list1, list2):
     """
@@ -57,39 +83,10 @@ if __name__ == "__main__":
 
     # first generate the data
     # Parameters
-    N = 100  # number of data points
-    D = 2  # dimension of data points
-    K = 3  # number of clusters
+    N = 10000  # number of data points
+    D = 200 # dimension of data points
+    K = 4 # number of clusters
 
-    A, true_centroids = generate_testing_data(N, D, K)
-    print("True centroids")
-    print(true_centroids)
-
-    centroids_sklearn = kmeans_sklearn(N, D, A, K)
-    print("Sklearn done")
-    print(centroids_sklearn)
-
-    centroids = kmeans(N, D, A, K)
-    print("Custom done")
-    print(centroids)
-
-    """
-    centroids = kmeans_sklearn(N, D, A, K)
-    # order the centroids in the same order
-    ordered_centroids = sorted(centroids, key=lambda x: np.sum(x))
-    custom_centroids = test_kmeans()
-    ordered_custom_centroids = sorted(custom_centroids, key=lambda x: np.sum(x))
-
-    print(len(centroids), len(custom_centroids))
-
-    # Compare the centroids by printing the distance for each of the centroids
-    for centroid in zip(ordered_centroids, ordered_custom_centroids):
-        print(np.linalg.norm(centroid[0] - centroid[1]))
-    
-
-
-
-    #centroids_jax = kmeans_jax(N, D, A, K)
-    #print("Jax done")
-    #print(centroids_jax)
-    """
+    # Test KMeans
+    print("Testing KMeans")
+    test_accuracy(N, D, K, kmeans_jax)

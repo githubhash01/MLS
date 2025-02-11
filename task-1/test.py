@@ -37,10 +37,10 @@ def testdata_knn(test_file):
     if test_file == "":
         # use random data
         N = 1000
-        D = 100
+        D = 10
         A = np.random.randn(N, D)
         X = np.random.randn(D)
-        K = 10
+        K = 3
         return N, D, A, X, K
     else:
         # read n, d, a_file, x_file, k from test_file.json

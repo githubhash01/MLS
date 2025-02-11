@@ -6,8 +6,9 @@ import numpy as np
 # ------------------------------------------------------------------------------------------------
 from jax import numpy as jnp
 from jax import jit
-import jax.random as random
+from jax import random as jrn
 from sklearn.cluster import KMeans
+from functools import partial
 from jax import lax
 import time
 # ------------------------------------------------------------------------------------------------
@@ -86,12 +87,20 @@ def kmeans_sklearn(N, D, A, K):
     kmeans.fit(A)
     return kmeans.cluster_centers_
 
+
 def kmeans(N, D, A, K, max_iter=1000):
     """
-    N: number of data points
-    D: dimension of data points
-    A: dataset
-    K: number of clusters
+    K-Means clustering with K-Means++ initialization.
+
+    Parameters:
+    - N: Number of data points
+    - D: Dimension of data points
+    - A: Dataset (NxD)
+    - K: Number of clusters
+    - max_iter: Maximum number of iterations
+
+    Returns:
+    - centroids: Final cluster centroids as a NumPy array (KxD)
     """
     inertia = np.inf
 
@@ -113,26 +122,20 @@ def kmeans(N, D, A, K, max_iter=1000):
         clusters = [A[labels == j] for j in range(K)]
 
         # Update centroids using random point if cluster is empty
-        new_centroids = [
-            np.mean(cluster, axis=0) if len(cluster) > 0 else random.choice(A)
+        new_centroids = np.array([
+            np.mean(cluster, axis=0) if len(cluster) > 0 else A[np.random.choice(len(A))]
             for cluster in clusters
-        ]
+        ])
 
         new_inertia = sum([
-            np.sum([distance_l2(x, new_centroids[j]) for x in cluster])
+            np.sum(np.linalg.norm(cluster - new_centroids[j], axis=1))
             for j, cluster in enumerate(clusters)
         ])
 
         print(centroids, new_inertia)
 
-        """
-        # Check for inertial convergence
-        if np.abs(inertia - new_inertia) < 1e-2:
-            print("Converged")
-            break
-
-        """
-        if np.linalg.norm(np.array(new_centroids) - np.array(centroids), axis=1).max() < 1e-6:
+        # Convergence check: Ensure centroids do not move significantly
+        if np.linalg.norm(new_centroids - centroids, axis=1).max() < 1e-6:
             print("Converged")
             return new_centroids
 
@@ -143,34 +146,58 @@ def kmeans(N, D, A, K, max_iter=1000):
 
 def kmeans_jax(N, D, A, K, max_iter=200):
 
-    key = random.PRNGKey(0)
-    key, subkey = random.split(key)
+    def kmeans_plus_plus_init(A, K):
+        """K-means++ initialization using JAX."""
+        key = jrn.PRNGKey(0)
+        key, subkey = jrn.split(key)
 
-    centroid_indices = random.choice(subkey, A.shape[0], shape=(K,), replace=False)
-    centroids = A[centroid_indices]
+        N = A.shape[0]
 
-    # Compute the distances matrix D of shape N x K (each row: distances from a point to all centroids)
-    summed_distances = (A[:, None, :] - centroids[None, :, :]) ** 2 # Summed Distances: N x K x D
-    distances = jnp.sum(summed_distances, axis=-1)  # Distances: N x K
+        # Select the first centroid randomly
+        key, subkey = jrn.split(key)
+        centroids = [A[jrn.choice(subkey, N)]]
 
-    # Assign each point to the cluster of the nearest centroid and save in vector A: N where a_i is the index of the cluster of the i-th point
-    assignments = jnp.argmin(distances, axis=1)  # A: N
+        for _ in range(1, K):
+            # Compute distances to the nearest centroid
+            dists = jnp.min(jnp.linalg.norm(A[:, None, :] - jnp.array(centroids)[None, :, :], axis=2), axis=1)
 
-    # Now update the centroids by computing the mean of all points in each cluster
-    tally = jnp.bincount(assignments, length=K)
-    tally = jnp.where(tally == 0, 1, tally)  # Prevent division by zero
+            # Compute probability distribution
+            probs = dists ** 2 / jnp.sum(dists ** 2)
 
-    sums = jnp.zeros((K, D))
-    sums = sums.at[assignments].add(A)
+            # Select next centroid based on probability
+            key, subkey = jrn.split(key)
+            next_centroid = A[jrn.choice(subkey, N, p=probs)]
+            centroids.append(next_centroid)
 
-    centroids = sums / tally[:, None]
+        return jnp.array(centroids)
+
+    # Initialize centroids using K-Means++ algorithm
+    centroids = kmeans_plus_plus_init(A, K)
+
+    for _ in range(max_iter):
+        # Compute the distances matrix D of shape N x K (each row: distances from a point to all centroids)
+        summed_distances = (A[:, None, :] - centroids[None, :, :]) ** 2 # Summed Distances: N x K x D
+        distances = jnp.sum(summed_distances, axis=-1)  # Distances: N x K
+
+        # Assign each point to the cluster of the nearest centroid and save in vector A: N where a_i is the index of the cluster of the i-th point
+        assignments = jnp.argmin(distances, axis=1)  # A: N
+
+        # Now update the centroids by computing the mean of all points in each cluster
+        tally = jnp.bincount(assignments, length=K)
+        tally = jnp.where(tally == 0, 1, tally)  # Prevent division by zero
+
+        sums = jnp.zeros((K, D))
+        sums = sums.at[assignments].add(A)
+
+        new_centroids = sums / tally[:, None]
+
+        # check for convergence
+        if jnp.all(jnp.linalg.norm(new_centroids - centroids, axis=1) < 1e-6):
+            return new_centroids
+
+        centroids = new_centroids
 
     return centroids
-
-
-
-
-
 
 
 
