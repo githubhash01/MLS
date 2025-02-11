@@ -6,11 +6,23 @@ import numpy as np
 import time
 
 
-N = 1000 # number of data points
-D = 100 # dimension of data points
-A = np.random.randn(N, D) # dataset
-X = np.random.randn(D) # query point
-K = 10 # number of nearest neighbours
+from sklearn.datasets import make_blobs
+import matplotlib.pyplot as plt
+
+
+
+def generate_testing_data(N, D, K):
+    """
+    Generate synthetic dataset with well-separated clusters
+    """
+    #A, true_labels = make_blobs(n_samples=N, n_features=D, centers=K, cluster_std=0.5, random_state=42)
+    cluster_centers = np.array([[5, 5], [-5, -5], [5, -5]])
+    A = np.vstack([center + 0.5 * np.random.randn(N // K, D) for center in cluster_centers])
+    # Visualize the dataset
+    #plt.scatter(A[:, 0], A[:, 1])
+    #plt.title("Manually Defined Clusters")
+    #plt.show()
+    return A, cluster_centers
 
 # Example
 def test_kmeans():
@@ -43,6 +55,24 @@ def recall_rate(list1, list2):
 
 if __name__ == "__main__":
 
+    # first generate the data
+    # Parameters
+    N = 100  # number of data points
+    D = 2  # dimension of data points
+    K = 3  # number of clusters
+
+    A, true_centroids = generate_testing_data(N, D, K)
+    print("True centroids")
+    print(true_centroids)
+
+    centroids_sklearn = kmeans_sklearn(N, D, A, K)
+    print("Sklearn done")
+    print(centroids_sklearn)
+
+    centroids = kmeans(N, D, A, K)
+    print("Custom done")
+    print(centroids)
+
     """
     centroids = kmeans_sklearn(N, D, A, K)
     # order the centroids in the same order
@@ -55,11 +85,11 @@ if __name__ == "__main__":
     # Compare the centroids by printing the distance for each of the centroids
     for centroid in zip(ordered_centroids, ordered_custom_centroids):
         print(np.linalg.norm(centroid[0] - centroid[1]))
-    """
+    
 
-    centroids = kmeans_sklearn(N, D, A, K)
-    print("Sklearn done")
-    centroids_jax = kmeans_jax(N, D, A, K)
-    print("Jax done")
-    centroids_numpy = kmeans(N, D, A, K)
-    print("Numpy done")
+
+
+    #centroids_jax = kmeans_jax(N, D, A, K)
+    #print("Jax done")
+    #print(centroids_jax)
+    """

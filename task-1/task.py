@@ -7,6 +7,7 @@ import numpy as np
 from jax import numpy as jnp
 from jax import jit
 import jax.random as random
+from sklearn.cluster import KMeans
 from jax import lax
 import time
 # ------------------------------------------------------------------------------------------------
@@ -80,120 +81,92 @@ def calculate_centroids(clusters):
     return [np.mean(cluster, axis=0) for cluster in clusters]
 
 
-from sklearn.cluster import KMeans
-import matplotlib.pyplot as plt
-
 def kmeans_sklearn(N, D, A, K):
-    kmeans = KMeans(n_clusters=K, init='random')
+    kmeans = KMeans(n_clusters=K)
     kmeans.fit(A)
     return kmeans.cluster_centers_
 
-def kmeans(N, D, A, K, max_iter=200):
+def kmeans(N, D, A, K, max_iter=1000):
     """
     N: number of data points
     D: dimension of data points
     A: dataset
     K: number of clusters
     """
-    # Set initial inertia to infinity
     inertia = np.inf
-    # Randomly generate K centroids
-    centroids = A[np.random.choice(N, K, replace=False)]
+
+    def kmeans_plus_plus_init(A, K):
+        """K-means++ initialization for better centroid selection."""
+        centroids = [A[np.random.choice(len(A))]]
+        for _ in range(1, K):
+            dists = np.min([np.linalg.norm(A - c, axis=1) for c in centroids], axis=0)
+            probs = dists ** 2 / np.sum(dists ** 2)
+            centroids.append(A[np.random.choice(len(A), p=probs)])
+        return np.array(centroids)
+
+    centroids = kmeans_plus_plus_init(A, K)
 
     for _ in range(max_iter):
 
         # Assign points to clusters
-        clusters = [
-            [x for x in A if np.argmin([distance_l2(x, centroid) for centroid in centroids]) == j]
-            for j in range(K)
-        ]
-        # Update centroids
+        labels = np.argmin(np.linalg.norm(A[:, np.newaxis] - centroids, axis=2), axis=1)
+        clusters = [A[labels == j] for j in range(K)]
+
+        # Update centroids using random point if cluster is empty
         new_centroids = [
-            np.mean(cluster, axis=0) if len(cluster) > 0 else A[np.random.randint(N)]
+            np.mean(cluster, axis=0) if len(cluster) > 0 else random.choice(A)
             for cluster in clusters
         ]
 
-        # Calculate new inertia
         new_inertia = sum([
             np.sum([distance_l2(x, new_centroids[j]) for x in cluster])
             for j, cluster in enumerate(clusters)
         ])
 
-        print(f"Iteration {_}: Inertia = {new_inertia}")
+        print(centroids, new_inertia)
 
+        """
         # Check for inertial convergence
-        if np.isclose(inertia, new_inertia, atol=1e-5):
+        if np.abs(inertia - new_inertia) < 1e-2:
+            print("Converged")
+            break
+
+        """
+        if np.linalg.norm(np.array(new_centroids) - np.array(centroids), axis=1).max() < 1e-6:
             print("Converged")
             return new_centroids
 
-        inertia = new_inertia
         centroids = new_centroids
+        inertia = new_inertia
 
-    print("Did not converge")
     return centroids
 
 def kmeans_jax(N, D, A, K, max_iter=200):
 
     key = random.PRNGKey(0)
-    # Create an immutable tensor C of shape K x D with random values
-    #centroids = random.uniform(key, (K, D))  # C: K x D
-    # create an immutable tensor C of shape K x D with random values using choice
-    centroids = A[random.choice(key, N, (K, D), replace=False)]  # C: K x D
-    # Initialize assignments as zeros
-    assignments = jnp.zeros(N, dtype=jnp.int32)  # Shape: (N,)
+    key, subkey = random.split(key)
 
-    def exit_condition(state):
-        i, centroids, assignments = state
-        return i < max_iter  # Stop when max_iter is reached
+    centroid_indices = random.choice(subkey, A.shape[0], shape=(K,), replace=False)
+    centroids = A[centroid_indices]
 
-    def update_step(state):
-        i, centroids, assignments = state
+    # Compute the distances matrix D of shape N x K (each row: distances from a point to all centroids)
+    summed_distances = (A[:, None, :] - centroids[None, :, :]) ** 2 # Summed Distances: N x K x D
+    distances = jnp.sum(summed_distances, axis=-1)  # Distances: N x K
 
-        # Compute distances & assignments
-        distances = jnp.sum((A[:, None, :] - centroids[None, :, :]) ** 2, axis=-1)  # N x K
-        new_assignments = jnp.argmin(distances, axis=1)  # N
+    # Assign each point to the cluster of the nearest centroid and save in vector A: N where a_i is the index of the cluster of the i-th point
+    assignments = jnp.argmin(distances, axis=1)  # A: N
 
-        def compute_inertia(A, assignments, centroids):
-            # Get the centroid corresponding to each point's assignment
-            assigned_centroids = centroids[assignments]  # Shape: (N, D)
+    # Now update the centroids by computing the mean of all points in each cluster
+    tally = jnp.bincount(assignments, length=K)
+    tally = jnp.where(tally == 0, 1, tally)  # Prevent division by zero
 
-            # Compute squared L2 distance for all points
-            distances = jnp.sum((A - assigned_centroids) ** 2, axis=1)  # Shape: (N,)
+    sums = jnp.zeros((K, D))
+    sums = sums.at[assignments].add(A)
 
-            # Sum over all points to get total inertia
-            return jnp.sum(distances)
+    centroids = sums / tally[:, None]
 
-        def compute_new_centroids(A, assignments, K):
-            # Sum of points in each cluster
-            cluster_sums = jnp.zeros((K, A.shape[1]))
-            cluster_sums = cluster_sums.at[assignments].add(A)
+    return centroids
 
-            # Count of points in each cluster
-            cluster_counts = jnp.bincount(assignments, length=K).astype(jnp.float32).reshape(-1, 1)
-
-            # Avoid division by zero (if a cluster has no points)
-            cluster_counts = jnp.where(cluster_counts == 0, 1, cluster_counts)
-
-            # Compute new centroids
-            return cluster_sums / cluster_counts  # Shape: (K, D)
-
-        # Compute new centroids
-        new_centroids = compute_new_centroids(A, new_assignments, K)  # K x D
-
-        inertia = compute_inertia(A, new_assignments, new_centroids)
-
-        jax.debug.print("Iteration {i}: Inertia = {inertia}", i=i, inertia=inertia)
-
-        return i + 1, new_centroids, new_assignments  # Update state
-
-    i_init = 0
-    final_state = lax.while_loop(exit_condition, update_step, (i_init, centroids, assignments))
-
-    final_iter, final_centroids, final_assignments = final_state
-    assert final_centroids.shape == (K, D), "Centroids shape is incorrect!"
-    assert final_assignments.shape == (N,), "Assignments shape is incorrect!"
-
-    return final_centroids
 
 
 
