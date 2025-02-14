@@ -9,10 +9,6 @@ from test import testdata_kmeans, testdata_knn, testdata_ann
 # Your Task 1.1 code here
 # ------------------------------------------------------------------------------------------------
 
-# You can create any kernel here
-# def distance_kernel(X, Y, D):
-#     pass
-
 def distance_cosine(X, Y):
     return 1 - (cp.dot(X, Y) / (cp.linalg.norm(X) * cp.linalg.norm(Y)))
 
@@ -29,8 +25,6 @@ def distance_manhattan(X, Y):
 # Your Task 1.2 code here
 # ------------------------------------------------------------------------------------------------
 
-# You can create any kernel here
-
 def our_knn(N, D, A, X, K):
     """
     Input:
@@ -40,7 +34,7 @@ def our_knn(N, D, A, X, K):
         X: A specified vector
         K: Top K
     """
-    
+
     pass
 
 # ------------------------------------------------------------------------------------------------
