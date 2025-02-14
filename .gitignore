@@ -1,2 +1,3 @@
 mls_venv/
 activate/
+**/__pycache__
