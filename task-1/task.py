@@ -1,5 +1,6 @@
 # import torch
 import cupy as cp
+import cupyx
 # import triton
 import numpy as np
 import time
@@ -25,7 +26,26 @@ def distance_manhattan(X, Y):
 # Your Task 1.2 code here
 # ------------------------------------------------------------------------------------------------
 
-def our_knn(N, D, A, X, K):
+# def our_knn(N, D, A, X, K):
+#     """
+#     Input:
+#         N: Number of vectors
+#         D: Dimension of vectors
+#         A[N, D]: A collection of vectors
+#         X: A specified vector
+#         K: Top K
+#     """
+#     X = X.reshape(1, D)
+#     with cupyx.profiler.time_range("KNN Euclidean Distances", color_id=0):
+#         distances = cp.linalg.norm(A - X, axis=1)
+#     with cupyx.profiler.time_range("KNN Argsorting", color_id=0):
+#         top_k_indices = cp.argpartition(distances, K)[:K]
+#         sorted_k_indices = top_k_indices[cp.argsort(distances[top_k_indices])]
+#         # indices = cp.argsort(distances)[:K]
+#     k_distances = distances[sorted_k_indices]
+#     return sorted_k_indices, k_distances
+
+def our_knn_cupy(N, D, A, X, K):
     """
     Input:
         N: Number of vectors
@@ -34,8 +54,241 @@ def our_knn(N, D, A, X, K):
         X: A specified vector
         K: Top K
     """
+    X = X.reshape(1, D)
+    # with cupyx.profiler.time_range("KNN Euclidean Distances", color_id=0):
+    distances = cp.linalg.norm(A - X, axis=1)
+    # with cupyx.profiler.time_range("KNN Argsorting", color_id=0):
+    top_k_indices = cp.argpartition(distances, K)[:K]
+    sorted_k_indices = top_k_indices[cp.argsort(distances[top_k_indices])]
+        # indices = cp.argsort(distances)[:K]
+    k_distances = distances[sorted_k_indices]
+    return sorted_k_indices, k_distances
 
-    pass
+
+# def our_knn(N, D, A, X, K):
+#     """
+#     Input:
+#         N: Number of vectors
+#         D: Dimension of vectors
+#         A[N, D]: A collection of vectors
+#         X: A specified vector
+#         K: Top K
+#     """
+#     X = X.reshape(1, D)
+#     with cupyx.profiler.time_range("KNN Euclidean Distances", color_id=0):
+#         distances = cp.linalg.norm(A - X, axis=1)
+#     with cupyx.profiler.time_range("KNN Argsorting", color_id=0):
+#         # top_k_indices = cp.argpartition(distances, K)[:K]
+#         # sorted_k_indices = top_k_indices[cp.argsort(distances[top_k_indices])]
+#         indices = cp.argsort(distances)[:K]
+#     k_distances = distances[indices]
+#     return indices, k_distances
+
+
+# def our_knn(N, D, A, X, K):
+#     """
+#     Optimized GPU-based K-Nearest Neighbors using CuPy.
+
+#     Input:
+#         N: Number of vectors
+#         D: Dimension of vectors
+#         A[N, D]: A collection of vectors
+#         X[D]: A specified vector
+#         K: Top K nearest neighbors
+#     Output:
+#         indices[K]: Indices of the K nearest neighbors
+#         distances[K]: Distances of the K nearest neighbors
+#     """
+    
+#     knn_kernel = cp.RawKernel(r'''
+#     extern "C" __global__ void knn_kernel(const double* A, const double* X, double* distances, int* indices, int N, int D) {
+#         int idx = blockIdx.x * blockDim.x + threadIdx.x;
+#         if (idx >= N) return;
+
+#         double dist = 0.0;
+#         for (int j = 0; j < D; j++) {
+#             double diff = A[idx * D + j] - X[j];
+#             dist += diff * diff;
+#         }
+#         distances[idx] = dist;
+#         indices[idx] = idx;
+#     }
+#     ''', 'knn_kernel')
+    
+#     distances = cp.empty(N, dtype=cp.float64)
+#     indices = cp.arange(N, dtype=cp.int32)
+
+#     threads_per_block = 256
+#     blocks_per_grid = (N + threads_per_block - 1) // threads_per_block
+
+#     knn_kernel((blocks_per_grid,), (threads_per_block,), (A, X, distances, indices, N, D))
+
+#     # Ensure K does not exceed the number of points
+#     K = min(K, N)
+
+#     # Use safer selection method for top K
+#     top_k_indices = cp.argpartition(distances, K-1)[:K]
+#     sorted_k_indices = top_k_indices[cp.argsort(distances[top_k_indices])]
+
+#     return indices[sorted_k_indices], distances[sorted_k_indices]
+
+def our_knn_raw(N, D, A, X, K):
+    """
+    Optimized GPU-based K-Nearest Neighbors using CuPy.
+    """
+
+    knn_kernel = cp.RawKernel(r'''
+    extern "C" __global__ void knn_kernel(const double* A, const double* X, double* distances, int* indices, int N, int D) {
+        extern __shared__ double shared_A[];  // Shared memory for A
+        int idx = blockIdx.x * blockDim.x + threadIdx.x;  // Global thread index
+        int tid = threadIdx.x;  // Thread index within the block
+
+        // Load a chunk of A into shared memory
+        for (int j = 0; j < D; j += blockDim.x) {
+            if (tid + j < D) {  // Ensure we don't exceed the bounds of A
+                shared_A[tid + j] = A[idx * D + tid + j];
+            }
+        }
+        __syncthreads();  // Synchronize threads to ensure shared_A is fully populated
+
+        if (idx >= N) return;  // Ensure idx is within bounds
+
+        // Compute the distance between A[idx] and X
+        double dist = 0.0;
+        for (int j = 0; j < D; j++) {
+            double diff = shared_A[j] - X[j];
+            dist += diff * diff;
+        }
+        distances[idx] = dist;
+        indices[idx] = idx;
+    }
+    ''', 'knn_kernel')
+    
+    distances = cp.empty(N, dtype=cp.float64)
+    indices = cp.arange(N, dtype=cp.int32)
+
+    threads_per_block = 256
+    blocks_per_grid = (N + threads_per_block - 1) // threads_per_block
+
+    # shmem_size = D * cp.dtype('float64').itemsize  # Size of A chunk in bytes
+
+    # Query the available shared memory per block
+    shared_mem_limit = cp.cuda.Device().attributes['MaxSharedMemoryPerBlock']
+    print(f"Shared memory per block: {shared_mem_limit} bytes")
+
+    # Calculate the required shared memory size
+    shared_mem_size = N * D * cp.dtype('float64').itemsize
+    print(f"Required shared memory size: {shared_mem_size} bytes")
+
+    # Ensure the shared memory size does not exceed the limit
+    # if shared_mem_size > shared_mem_limit:
+    #     raise ValueError(f"Shared memory size ({shared_mem_size} bytes) exceeds the GPU limit ({shared_mem_limit} bytes).")
+
+    # assert shared_mem_size <= cp.cuda.Device().attributes['MaxSharedMemoryPerBlock']
+
+    knn_kernel(
+        (blocks_per_grid,), 
+        (threads_per_block,),
+        (A, X, distances, indices, N, D),
+        shared_mem=shared_mem_size
+    )
+
+    K = min(K, N)
+    top_k_indices = cp.argpartition(distances, K)[:K]
+    sorted_k_indices = top_k_indices[cp.argsort(distances[top_k_indices])]
+
+    return indices[sorted_k_indices], distances[sorted_k_indices]
+
+def our_knn_raw_tiled(N, D, A, X, K):
+    knn_kernel_tiled = cp.RawKernel(r'''
+    extern "C" __global__ void knn_kernel_tiled(const double* A, const double* X, double* distances, int* indices, int N, int D, int tile_size) {
+        extern __shared__ double shared_A[];  // Shared memory for a tile of A
+        int idx = blockIdx.x * blockDim.x + threadIdx.x;  // Global thread index
+        int tid = threadIdx.x;  // Thread index within the block
+
+        double dist = 0.0;
+
+        // Process A in tiles
+        for (int tile_start = 0; tile_start < D; tile_start += tile_size) {
+            // Load a tile of A into shared memory
+            int tile_end = min(tile_start + tile_size, D);
+            for (int j = tile_start + tid; j < tile_end; j += blockDim.x) {
+                shared_A[j - tile_start] = A[idx * D + j];
+            }
+            __syncthreads();  // Synchronize threads to ensure shared_A is fully populated
+
+            // Compute partial distance for the current tile
+            for (int j = 0; j < tile_end - tile_start; j++) {
+                double diff = shared_A[j] - X[tile_start + j];
+                dist += diff * diff;
+            }
+            __syncthreads();  // Synchronize threads before loading the next tile
+        }
+
+        // Write the final distance and index
+        if (idx < N) {
+            distances[idx] = dist;
+            indices[idx] = idx;
+        }
+    }
+    ''', 'knn_kernel_tiled')
+
+    distances = cp.zeros(N, dtype='float64')   # Output distances
+    indices = cp.zeros(N, dtype='int32')       # Output indices
+
+    # Define the block size and grid size
+    block_size = 256  # Example block size
+    grid_size = (N + block_size - 1) // block_size  # Ensure all elements are covered
+
+    # Define the tile size (must fit within shared memory)
+    shared_mem_limit = cp.cuda.Device().attributes['MaxSharedMemoryPerBlock']
+    tile_size = shared_mem_limit // cp.dtype('float64').itemsize  # Max elements per tile
+    print("shmem limit", shared_mem_limit)
+    print(f"Tile size: {tile_size} elements")
+
+    # Launch the kernel
+    knn_kernel_tiled(
+        (grid_size,),  # Grid dimensions (1D grid)
+        (block_size,),  # Block dimensions (1D block)
+        (A, X, distances, indices, N, D, tile_size),  # Kernel arguments
+        shared_mem=tile_size * cp.dtype('float64').itemsize  # Shared memory size
+    )
+
+    K = min(K, N)
+    top_k_indices = cp.argpartition(distances, K)[:K]
+    sorted_k_indices = top_k_indices[cp.argsort(distances[top_k_indices])]
+
+    return indices[sorted_k_indices], distances[sorted_k_indices]
+
+
+def our_knn_cpu(N, D, A, X, K):
+    """
+    Input:
+        N: Number of vectors
+        D: Dimension of vectors
+        A[N, D]: A collection of vectors (NumPy array)
+        X: A specified vector (NumPy array of shape [D])
+        K: Top K (number of nearest neighbors to find)
+    
+    Output:
+        indices: The indices of the K-nearest neighbors in the array A
+        distances: The corresponding distances of the K-nearest neighbors
+    """
+    # Ensure X has the correct shape (1, D) for broadcasting
+    X = X.reshape(1, D)
+    
+    # Step 1: Calculate the squared Euclidean distances between X and all vectors in A
+    # Using broadcasting: ||A - X||^2 = sum((A - X)^2) along axis=1
+    distances = np.linalg.norm(A - X, axis=1)
+    
+    # Step 2: Get the indices of the K smallest distances
+    indices = np.argsort(distances)[:K]
+    
+    # Step 3: Gather the K smallest distances
+    k_distances = distances[indices]
+
+    return indices, k_distances
+
 
 # ------------------------------------------------------------------------------------------------
 # Your Task 2.1 code here
@@ -112,5 +365,85 @@ def recall_rate(list1, list2):
     """
     return len(set(list1) & set(list2)) / len(list1)
 
+def measure_speedup_knn(N, D, K):
+    # Generate random data
+    A_gpu = cp.random.rand(N, D)  # CuPy array for GPU
+    X_gpu = cp.random.rand(D)     # CuPy vector for GPU
+
+    A_cpu = np.random.rand(N, D)  # NumPy array for CPU
+    X_cpu = np.random.rand(D)     # NumPy vector for CPU
+
+    our_knn_raw(N, D, A_gpu, X_gpu, K)
+
+    # Measure time for the GPU implementation
+    start_gpu = time.perf_counter()
+    indices_gpu, distances_gpu = our_knn_raw(N, D, A_gpu, X_gpu, K)
+    end_gpu = time.perf_counter()
+    gpu_time = end_gpu - start_gpu
+
+    our_knn_raw_tiled(N, D, A_gpu, X_gpu, K)
+
+    # Measure time for the CPU implementation
+    start_cpu = time.perf_counter()
+    indices_cpu, distances_cpu = our_knn_raw_tiled(N, D, A_gpu, X_gpu, K)
+    end_cpu = time.perf_counter()
+    cpu_time = end_cpu - start_cpu
+
+    # Calculate and print the speedup
+    speedup = cpu_time / gpu_time
+    print(f"CPU Time = {cpu_time:.6f}s, GPU Time = {gpu_time:.6f}s, Speedup = {speedup:.2f}x")
+    assert cp.allclose(indices_gpu, indices_gpu, atol=1e-6), "Mismatch in results!"
+
+
+def benchmark_knn(func, N, D, A, X, K, runs=5):
+    # Warm-up run (to avoid startup overhead
+
+    func(N, D, A, X, K)
+
+    start_event = cp.cuda.Event()
+    end_event = cp.cuda.Event()
+
+    start_event.record()
+    for _ in range(runs):
+        func(N, D, A, X, K)
+    end_event.record()
+
+    # Wait for GPU to finish (synchronize)
+    end_event.synchronize()
+    
+    elapsed_time = cp.cuda.get_elapsed_time(start_event, end_event) / runs  # ms
+    return elapsed_time
+
+def new_benchmark_knn(N, D, K):
+    cp.random.seed(12345)
+
+    A = cp.random.rand(N, D)  # CuPy array for GPU
+    X = cp.random.rand(D)     # CuPy vector for GPU
+    # Measure performance
+    time_cupy = benchmark_knn(our_knn_cupy, N, D, A, X, K)
+    time_raw = benchmark_knn(our_knn_raw_tiled, N, D, A, X, K)
+
+    print(f"Pure CuPy Time: {time_cupy:.4f} ms")
+    print(f"Raw Kernel Time: {time_raw:.4f} ms")
+    print(f"Speedup: {time_cupy / time_raw:.2f}x")
+
+def profile_gpu_knn(func, N, D, K):
+    cp.random.seed(12345)
+
+    A = cp.random.rand(N, D)  # CuPy array for GPU
+    X = cp.random.rand(D)     # CuPy vector for GPU
+
+    indices, _ = func(N, D, A, X, K)
+    print(indices)
+
+    return
+
+# Run the speedup measurements
 if __name__ == "__main__":
-    test_distances()
+    # test_distances()
+    # measure_speedup_knn(2**9, 10, 5)
+    # profile_gpu_knn(our_knn_cupy, 20, 2**20, 10)
+    profile_gpu_knn(our_knn_raw_tiled, 2**15, 20, 10)
+
+    # profile_knn(our_knn_raw, 100000, 10, 5)
+    # new_benchmark_knn(2**15, 20, 10)
