@@ -1,5 +1,6 @@
 import numpy as np
 import json
+import torch
 
 def read_data(file_path=""):
     """
@@ -17,7 +18,7 @@ def testdata_kmeans(test_file):
         # use random data
         N = 1000
         D = 100
-        A = np.random.randn(N, D)
+        A = torch.tensor(np.random.randn(N, D), dtype=torch.float32)
         K = 10
         return N, D, A, K
     else:
@@ -28,7 +29,7 @@ def testdata_kmeans(test_file):
             D = data["d"]
             A_file = data["a_file"]
             K = data["k"]
-            A = np.loadtxt(A_file)
+            A = torch.tensor(np.loadtxt(A_file), dtype=torch.float32)
         return N, D, A, K
 
 def testdata_knn(test_file):
@@ -36,8 +37,8 @@ def testdata_knn(test_file):
         # use random data
         N = 1000
         D = 100
-        A = np.random.randn(N, D)
-        X = np.random.randn(D)
+        A = torch.tensor(np.random.randn(N, D), dtype=torch.float32)
+        X = torch.tensor(np.random.randn(1, D), dtype=torch.float32)
         K = 10
         return N, D, A, X, K
     else:
@@ -49,8 +50,8 @@ def testdata_knn(test_file):
             A_file = data["a_file"]
             X_file = data["x_file"]
             K = data["k"]
-            A = np.loadtxt(A_file)
-            X = np.loadtxt(X_file)
+            A = torch.tensor(np.loadtxt(A_file), dtype=torch.float32)
+            X = torch.tensor(np.loadtxt(X_file), dtype=torch.float32)
         return N, D, A, X, K
     
 def testdata_ann(test_file):
@@ -58,8 +59,8 @@ def testdata_ann(test_file):
         # use random data
         N = 1000
         D = 100
-        A = np.random.randn(N, D)
-        X = np.random.randn(D)
+        A = torch.tensor(np.random.randn(N, D), dtype=torch.float32)
+        X = torch.tensor(np.random.randn(1, D), dtype=torch.float32)
         K = 10
         return N, D, A, X, K
     else:
@@ -71,6 +72,6 @@ def testdata_ann(test_file):
             A_file = data["a_file"]
             X_file = data["x_file"]
             K = data["k"]
-            A = np.loadtxt(A_file)
-            X = np.loadtxt(X_file)
+            A = torch.tensor(np.loadtxt(A_file), dtype=torch.float32)
+            X = torch.tensor(np.loadtxt(X_file), dtype=torch.float32)
         return N, D, A, X, K
