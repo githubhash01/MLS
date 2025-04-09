@@ -6,43 +6,63 @@ import numpy as np
 import time
 import json
 from test import testdata_kmeans, testdata_knn, testdata_ann
+from sklearn.datasets import make_blobs
+
+from distance_functions import (
+        distance_l2_gpu, 
+        distance_cosine_gpu,
+        distance_dot_gpu,
+        distance_manhattan_gpu,
+        distance_l2_cpu, 
+        distance_cosine_cpu,
+        distance_dot_cpu,
+        distance_manhattan_cpu,
+        distance_l2_kmeans,
+        distance_cosine_kmeans,
+        distance_manhattan_kmeans,
+        distance_dot_kmeans
+    )
 # ------------------------------------------------------------------------------------------------
 # Your Task 1.1 code here
 # ------------------------------------------------------------------------------------------------
 
-def distance_cosine(X, Y):
-    return 1 - (cp.dot(X, Y) / (cp.linalg.norm(X) * cp.linalg.norm(Y)))
+# def distance_cosine(X, Y):
+#     return 1 - (cp.dot(X, Y) / (cp.linalg.norm(X) * cp.linalg.norm(Y)))
 
-def distance_l2(X, Y):
-    return cp.sqrt(cp.sum((X - Y) ** 2))
+# def distance_l2(X, Y):
+#     return cp.sqrt(cp.sum((X - Y) ** 2))
 
-def distance_dot(X, Y):
-    return cp.dot(X, Y)
+# def distance_dot(X, Y):
+#     return cp.dot(X, Y)
 
-def distance_manhattan(X, Y):
-    return cp.sum(cp.absolute(X - Y))
+# def distance_manhattan(X, Y):
+#     return cp.sum(cp.absolute(X - Y))
 
 # ------------------------------------------------------------------------------------------------
 # Your Task 1.2 code here
 # ------------------------------------------------------------------------------------------------
 
-def our_knn_cupy(N, D, A, X, K):
+def our_knn_cupy(N, D, A, X, K, distance_fn=distance_l2_gpu):
     """
     Input:
         N: Number of vectors
         D: Dimension of vectors
-        A[N, D]: A collection of vectors
-        X: A specified vector
+        A[N, D]: A collection of vectors (CuPy array)
+        X[D]: A query vector (CuPy array)
         K: Top K
+        distance_fn: A vectorized function that computes distances between X and all rows in A
+
+    Output:
+        sorted_k_indices[K]: Indices of nearest neighbors
+        k_distances[K]: Corresponding distances
     """
     X = X.reshape(1, D)
-    # with cupyx.profiler.time_range("KNN Euclidean Distances", color_id=0):
-    distances = cp.linalg.norm(A - X, axis=1)
-    # with cupyx.profiler.time_range("KNN Argsorting", color_id=0):
+    distances = distance_fn(A, X)
+
     top_k_indices = cp.argpartition(distances, K)[:K]
     sorted_k_indices = top_k_indices[cp.argsort(distances[top_k_indices])]
-        # indices = cp.argsort(distances)[:K]
     k_distances = distances[sorted_k_indices]
+
     return sorted_k_indices, k_distances
 
 def our_knn_raw_tiled(N, D, A, X, K):
@@ -106,8 +126,7 @@ def our_knn_raw_tiled(N, D, A, X, K):
 
     return indices[sorted_k_indices], distances[sorted_k_indices]
 
-
-def our_knn_cpu(N, D, A, X, K):
+def our_knn_cpu(N, D, A, X, K, distance_func=distance_l2_cpu):
     """
     Input:
         N: Number of vectors
@@ -115,25 +134,21 @@ def our_knn_cpu(N, D, A, X, K):
         A[N, D]: A collection of vectors (NumPy array)
         X: A specified vector (NumPy array of shape [D])
         K: Top K (number of nearest neighbors to find)
+        distance_func: Distance function to use (default: L2)
     
     Output:
-        indices: The indices of the K-nearest neighbors in the array A
+        indices: The indices of the K-nearest neighbors in A
         distances: The corresponding distances of the K-nearest neighbors
     """
-    # Ensure X has the correct shape (1, D) for broadcasting
-    X = X.reshape(1, D)
-    
-    # Step 1: Calculate the squared Euclidean distances between X and all vectors in A
-    # Using broadcasting: ||A - X||^2 = sum((A - X)^2) along axis=1
-    distances = np.linalg.norm(A - X, axis=1)
-    
-    # Step 2: Get the indices of the K smallest distances
-    indices = np.argsort(distances)[:K]
-    
-    # Step 3: Gather the K smallest distances
-    k_distances = distances[indices]
+    X = X.reshape(D)  # Ensure X is 1D (original functions expect 1D inputs)
 
-    return indices, k_distances
+    distances = distance_func(A, X)
+
+    top_k_indices = np.argpartition(distances, K)[:K]
+    sorted_k_indices = top_k_indices[np.argsort(distances[top_k_indices])]
+    k_distances = distances[sorted_k_indices]
+
+    return sorted_k_indices, k_distances
 
 
 # ------------------------------------------------------------------------------------------------
@@ -144,48 +159,100 @@ def our_knn_cpu(N, D, A, X, K):
 # def distance_kernel(X, Y, D):
 #     pass
 
-def our_kmeans(N, D, A, K, max_iters=100, tol=1e-4):
+def kmeans_plus_plus_init(A, K, distance_fn=distance_l2_kmeans):
+    """
+    K-means++ initialization to select K centroids for clustering.
+    
+    Input:
+        A: A collection of vectors [N, D]
+        K: Number of centroids to choose
+        distance_fn: Distance function to compute distance (default: L2 distance)
+
+    Output:
+        centroids: The initialized centroids [K, D]
+    """
+    N = A.shape[0]
+    
+    # Choose the first centroid randomly
+    centroids = cp.zeros((K, A.shape[1]), dtype=A.dtype)
+    centroids[0] = A[cp.random.randint(0, N)]
+    
+    # Initialize an array to store distances
+    distances = cp.full(N, cp.inf, dtype=A.dtype)
+    
+    for k in range(1, K):
+        # Calculate distance from each point to the closest centroid
+        dist_to_centroid = distance_fn(A, centroids[:k, :])  # [N, k]
+        min_dist_to_centroid = cp.min(dist_to_centroid)  # [N]
+        
+        # Update distances
+        distances = cp.minimum(distances, min_dist_to_centroid)
+        
+        # Choose the next centroid with probability proportional to distance^2
+        prob = distances ** 2
+        
+        # Ensure that all values in prob are non-negative (they should be, but let's check just in case)
+        prob = cp.maximum(prob, 0)  # Set any negative values to 0
+        
+        # Handle potential cases where sum(prob) is zero (e.g., all points are identical or very close)
+        if cp.sum(prob) == 0:
+            prob = cp.ones(N)  # If all probabilities are zero, equally select any point
+        
+        prob /= cp.sum(prob)  # Normalize to make it a probability distribution
+        
+        # Choose the next centroid based on the probability distribution
+        chosen_idx = cp.random.choice(N, size=1, p=prob)
+        centroids[k] = A[chosen_idx]
+    
+    return centroids
+
+def our_kmeans(N, D, A, K, distance_fn=distance_l2_gpu, centroid_distance_fn=distance_l2_kmeans, max_iters=100, tol=1e-5):
     """
     Input:
         N: Number of vectors
         D: Dimension of vectors
         A[N, D]: A collection of vectors (CuPy array)
         K: Number of clusters
+        distance_fn: Which distance function
+        max_iters: Maximum number of iterations
+        tol: Convergence tolerance
+
     Output:
         centroids[K, D]: Final cluster centroids
         labels[N]: Cluster assignments for each vector
     """
-    # Randomly initialize centroids by choosing K points from A
-    random_indices = cp.random.choice(N, K, replace=False)
-    centroids = A[random_indices]
+    # Initialize centroids from random points in A
+    # random_indices = cp.random.choice(N, K, replace=False)
+    # centroids = A[random_indices]
 
-    for i in range(max_iters):
-        # Compute distances from each point to each centroid
-        # Using broadcasting: A[N, 1, D] - centroids[1, K, D] -> [N, K, D]
-        distances = cp.linalg.norm(A[:, cp.newaxis, :] - centroids[cp.newaxis, :, :], axis=2)  # [N, K]
+    centroids = kmeans_plus_plus_init(A, K, centroid_distance_fn)
 
-        # Assign each point to the nearest centroid
-        labels = cp.argmin(distances, axis=1)  # [N]
+    for _ in range(max_iters):
+        # Compute distances using provided distance function
+        centroid_distances = centroid_distance_fn(A, centroids)  # [N, K]
 
-        # Compute new centroids
+        # Assign clusters
+        labels = cp.argmin(centroid_distances, axis=1)
+
+        # Recompute centroids
         new_centroids = cp.zeros((K, D), dtype=A.dtype)
         for k in range(K):
             cluster_points = A[labels == k]
             if cluster_points.shape[0] > 0:
                 new_centroids[k] = cp.mean(cluster_points, axis=0)
             else:
-                # Handle empty clusters by reinitializing
                 new_centroids[k] = A[cp.random.randint(0, N)]
 
-        # Check for convergence
+        # Convergence check
         if cp.linalg.norm(new_centroids - centroids) < tol:
             break
+
         centroids = new_centroids
 
     return centroids, labels
 
 
-def numpy_kmeans(N, D, A, K, max_iters=100, tol=1e-4):
+def numpy_kmeans(N, D, A, K, max_iters=150, tol=1e-5):
     """
     K-means clustering using NumPy (CPU).
     
@@ -234,8 +301,45 @@ def numpy_kmeans(N, D, A, K, max_iters=100, tol=1e-4):
 
 # You can create any kernel here
 
-def our_ann(N, D, A, X, K):
-    pass
+def our_ann(N, D, A, X, K, centroids, labels, distance_fn=distance_l2_gpu, centroid_distance_fn=distance_l2_kmeans, num_clusters=100):
+    """
+    Approximate KNN using K-means clustering with selectable distance functions (on GPU with CuPy).
+
+    Input:
+        N: Number of vectors
+        D: Dimension of vectors
+        A[N, D]: Collection of vectors (CuPy array)
+        X[D]: Query vector (CuPy array)
+        K: Top K nearest neighbors to return
+        centroids[K, D]: Precomputed centroids from K-means
+        labels[N]: Precomputed labels (cluster assignments) from K-means
+        distance_fn: Function to compute distances from X to candidates (vectorized, returns [C])
+        num_clusters: Total number of clusters
+
+    Output:
+        indices[K]: Indices of approximate nearest neighbors
+        distances[K]: Distances to the nearest neighbors
+    """
+    X = X.reshape(1, D)
+
+    # Find closest centroid
+    centroid_distances = centroid_distance_fn(centroids, X)  # [K]
+    closest_cluster = cp.argmin(centroid_distances)
+
+    # Select candidate points from that cluster
+    cluster_indices = cp.where(labels == closest_cluster)[0]
+    candidates = A[cluster_indices]
+
+    if candidates.shape[0] == 0:
+        # Fallback to full dataset if cluster is empty
+        cluster_indices = cp.arange(N)
+        candidates = A
+
+    # Compute distances to candidates and select top K
+    distances = distance_fn(candidates, X)  # [C]
+    top_k_idx = cp.argsort(distances)[:K]
+
+    return cluster_indices[top_k_idx], distances[top_k_idx]
 
 # ------------------------------------------------------------------------------------------------
 # Test your code here
@@ -362,66 +466,76 @@ def profile_gpu_knn(func, N, D, K):
 
     return
 
+def compare_ann_recall_with_cupy(N, D, A_cpu, queries_cpu, K, num_clusters):
+    """
+    Compare ANN recall against exact KNN computed with CuPy.
+
+    Input:
+        N: Number of vectors
+        D: Dimension of vectors
+        A_cpu[N, D]: Dataset vectors (NumPy array)
+        queries_cpu[Q, D]: Query vectors (NumPy array)
+        K: Top K neighbors to retrieve
+        num_clusters: Number of clusters used in ANN
+
+    Output:
+        avg_recall: Average recall@K across all queries
+    """
+    A_gpu = cp.asarray(A_cpu)
+    Q = queries_cpu.shape[0]
+    total_recall = 0.0
+
+    centroids, labels = our_kmeans(N, D, A_gpu, num_clusters, distance_fn=distance_cosine_gpu, centroid_distance_fn=distance_cosine_kmeans)
+
+    for i in range(Q):
+        query_cpu = queries_cpu[i]
+        query_gpu = cp.asarray(query_cpu)
+
+        # Exact KNN on GPU
+        true_indices, _ = our_knn_cupy(N, D, A_gpu, query_gpu, K, distance_fn=distance_cosine_gpu)
+        true_set = set(cp.asnumpy(true_indices))
+
+        # ANN on CPU
+        approx_indices, _ = our_ann(N, D, A_gpu, query_gpu, K, centroids, labels, distance_cosine_gpu, distance_cosine_kmeans, num_clusters)
+        approx_set = set(cp.asnumpy(approx_indices))
+
+        # Compute recall@K
+        hits = len(approx_set.intersection(true_set))
+        total_recall += hits / K
+
+        print("rec: ", len(approx_set & true_set) / K)
+
+    avg_recall = total_recall / Q
+    print(f"Recall@{K} over {Q} queries: {avg_recall:.4f}")
+    return avg_recall
+
 # Run the speedup measurements
 if __name__ == "__main__":
     # test_distances()
     # measure_speedup_knn(2**15, 20, 5)
-    measure_speedup_kmeans(2**10, 2**10, 3)
+    # measure_speedup_kmeans(2**10, 2**10, 3)
+    # Generate data
+    # cp.random.seed(12345)
+    N, D = 2**20, 16
+    # A = cp.random.rand(N, D).astype(cp.float32)
+    # queries = cp.random.rand(100, D).astype(cp.float32)
+    K = 5
+    n_clusters = 100
+
+    A, _ = make_blobs(n_samples=N, n_features=D, centers=n_clusters, random_state=12345)
+    A = cp.array(A, dtype=cp.float32)
+    min_A = cp.min(A, axis=0)
+    max_A = cp.max(A, axis=0)
+
+    # Generate random queries in the same feature space (same order of magnitude)
+    queries = cp.random.rand(100, D).astype(cp.float32)
+    # Scale queries to be within the range of A
+    queries = min_A + (max_A - min_A) * queries
+
+    compare_ann_recall_with_cupy(N, D, A, queries, K, num_clusters=n_clusters)
     # profile_gpu_knn(our_knn_cupy, 20, 2**20, 10)
     # profile_gpu_knn(our_knn_raw_tiled, 2**15, 20, 10)
 
     # profile_knn(our_knn_raw, 100000, 10, 5)
     # new_benchmark_knn(2**15, 20, 5)
 
-
-
-
-
-# def test_distances():
-#     cp.random.seed(12345)
-
-#     X = cp.random.rand(1000)
-#     Y = cp.random.rand(1000)
-
-#     cos_dist = distance_cosine(X, Y)
-#     print(f"Cosine Distance: {cos_dist}")
-
-#     l2_dist = distance_l2(X, Y)
-#     print(f"Euclidean Distance: {l2_dist}")
-
-#     dot_prod = distance_dot(X, Y)
-#     print(f"Dot Product: {dot_prod}")
-
-#     manhattan_dist = distance_manhattan(X, Y)
-#     print(f"Manhattan Distance: {manhattan_dist}")
-
-#     # Verify that arrays are using the GPU
-#     assert cp.get_array_module(cos_dist) is cp, "Cosine Distance is not computed on GPU"
-#     assert cp.get_array_module(l2_dist) is cp, "Euclidean Distance is not computed on GPU"
-#     assert cp.get_array_module(dot_prod) is cp, "Dot Product is not computed on GPU"
-#     assert cp.get_array_module(manhattan_dist) is cp, "Manhattan Distance is not computed on GPU"
-
-#     print("All tests passed! The code is running on GPU.")
-
-# def test_kmeans():
-#     N, D, A, K = testdata_kmeans("test_file.json")
-#     kmeans_result = our_kmeans(N, D, A, K)
-#     print(kmeans_result)
-
-# def test_knn():
-#     N, D, A, X, K = testdata_knn("test_file.json")
-#     knn_result = our_knn(N, D, A, X, K)
-#     print(knn_result)
-    
-# def test_ann():
-#     N, D, A, X, K = testdata_ann("test_file.json")
-#     ann_result = our_ann(N, D, A, X, K)
-#     print(ann_result)
-
-# def recall_rate(list1, list2):
-#     """
-#     Calculate the recall rate of two lists
-#     list1[K]: The top K nearest vectors ID
-#     list2[K]: The top K nearest vectors ID
-#     """
-#     return len(set(list1) & set(list2)) / len(list1)
