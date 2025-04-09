@@ -516,11 +516,11 @@ if __name__ == "__main__":
     # measure_speedup_kmeans(2**10, 2**10, 3)
     # Generate data
     # cp.random.seed(12345)
-    N, D = 2**20, 16
+    N, D = 2**10, 64
     # A = cp.random.rand(N, D).astype(cp.float32)
     # queries = cp.random.rand(100, D).astype(cp.float32)
     K = 5
-    n_clusters = 100
+    n_clusters = 20
 
     A, _ = make_blobs(n_samples=N, n_features=D, centers=n_clusters, random_state=12345)
     A = cp.array(A, dtype=cp.float32)

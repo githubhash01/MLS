@@ -1,0 +1,5 @@
+- Profile new KNN, K means, and ANN functions to make sure there is no glaring performance issue
+    - If there is something, fix it
+- Clean up code
+- Try doing ANN with text-based dataset (Hashim -- CLIP thing)
+- Integrate with Part 2
