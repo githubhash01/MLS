@@ -1,0 +1,938 @@
+{
+  "test_parameters": {
+    "rate": 1.0,
+    "duration": 60,
+    "max_workers": 10
+  },
+  "original_metrics": {
+    "total_requests": 60,
+    "success_rate": 18.333333333333332,
+    "avg_latency": 13.21544034878413,
+    "p50_latency": 0.0242995023727417,
+    "p95_latency": 30.00417251586914,
+    "p99_latency": 30.00676512479782,
+    "min_latency": 0.0018382072448730469,
+    "max_latency": 30.010245084762573
+  },
+  "optimized_metrics": {
+    "total_requests": 60,
+    "success_rate": 76.66666666666667,
+    "avg_latency": 23.542998699347176,
+    "p50_latency": 24.110824584960938,
+    "p95_latency": 30.005108511447908,
+    "p99_latency": 30.006679339408876,
+    "min_latency": 15.97710394859314,
+    "max_latency": 30.00752305984497
+  },
+  "original_detailed_results": [
+    {
+      "timestamp": "2025-04-09T16:20:03.671719",
+      "query": "How do hummingbirds move?",
+      "latency": 0.013324260711669922,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c6e3490>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:04.655243",
+      "query": "Tell me about cats",
+      "latency": 0.0018382072448730469,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c6e3eb0>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:05.679018",
+      "query": "What do dogs do?",
+      "latency": 0.020961999893188477,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c6e3e50>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:06.656696",
+      "query": "Can birds fly?",
+      "latency": 0.003355264663696289,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c6e2920>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:07.660734",
+      "query": "What are domestic pets?",
+      "latency": 0.0025076866149902344,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c73c790>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:08.659864",
+      "query": "Tell me about mammals",
+      "latency": 0.0025811195373535156,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c73d030>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:09.685740",
+      "query": "How do hummingbirds move?",
+      "latency": 0.027637004852294922,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c73d8d0>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:10.659703",
+      "query": "Tell me about cats",
+      "latency": 0.0019147396087646484,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c6e3100>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:11.659984",
+      "query": "What do dogs do?",
+      "latency": 0.002437114715576172,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c6e3c10>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:12.659765",
+      "query": "Can birds fly?",
+      "latency": 0.0025649070739746094,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c73ce50>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:13.664097",
+      "query": "What are domestic pets?",
+      "latency": 0.005783796310424805,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c6e3cd0>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:14.659775",
+      "query": "Tell me about mammals",
+      "latency": 0.002505064010620117,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c6e30a0>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:15.659536",
+      "query": "How do hummingbirds move?",
+      "latency": 0.0019638538360595703,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c73cf10>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:16.660591",
+      "query": "Tell me about cats",
+      "latency": 0.002481698989868164,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c73d720>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:17.659598",
+      "query": "What do dogs do?",
+      "latency": 0.0023488998413085938,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c73c3a0>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:18.656412",
+      "query": "Can birds fly?",
+      "latency": 0.0030701160430908203,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c6e2b90>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:19.693878",
+      "query": "What are domestic pets?",
+      "latency": 0.035672664642333984,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c6e3b80>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:20.662128",
+      "query": "Tell me about mammals",
+      "latency": 0.004052877426147461,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c73d270>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:21.659937",
+      "query": "How do hummingbirds move?",
+      "latency": 0.0018918514251708984,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c73c970>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:22.661024",
+      "query": "Tell me about cats",
+      "latency": 0.0032968521118164062,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c6e3d00>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:23.660508",
+      "query": "What do dogs do?",
+      "latency": 0.0028510093688964844,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c6e32b0>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:24.657905",
+      "query": "Can birds fly?",
+      "latency": 0.003016233444213867,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c686140>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:25.659436",
+      "query": "What are domestic pets?",
+      "latency": 0.005107879638671875,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c73ccd0>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:26.660409",
+      "query": "Tell me about mammals",
+      "latency": 0.002270936965942383,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c73c850>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:27.660612",
+      "query": "How do hummingbirds move?",
+      "latency": 0.0024709701538085938,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c6146a0>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:28.660634",
+      "query": "Tell me about cats",
+      "latency": 0.0024979114532470703,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c6e3370>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:29.660149",
+      "query": "What do dogs do?",
+      "latency": 0.002807140350341797,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c73d3f0>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:30.659394",
+      "query": "Can birds fly?",
+      "latency": 0.002074718475341797,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c73cac0>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:31.659872",
+      "query": "What are domestic pets?",
+      "latency": 0.0021009445190429688,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c73df00>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:32.656635",
+      "query": "Tell me about mammals",
+      "latency": 0.0029680728912353516,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c6e29e0>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:33.660114",
+      "query": "How do hummingbirds move?",
+      "latency": 0.0020732879638671875,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c6e3250>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:20:34.660496",
+      "query": "Tell me about cats",
+      "latency": 0.0023407936096191406,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /rag (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x11c73cb80>: Failed to establish a new connection: [Errno 61] Connection refused'))"
+    },
+    {
+      "timestamp": "2025-04-09T16:21:05.668611",
+      "query": "What do dogs do?",
+      "latency": 30.010245084762573,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:21:06.662797",
+      "query": "Can birds fly?",
+      "latency": 30.003730058670044,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:21:07.661847",
+      "query": "What are domestic pets?",
+      "latency": 30.003391981124878,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:21:08.661504",
+      "query": "Tell me about mammals",
+      "latency": 30.003417015075684,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:21:09.661920",
+      "query": "How do hummingbirds move?",
+      "latency": 30.00377607345581,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:21:10.661329",
+      "query": "Tell me about cats",
+      "latency": 30.003403902053833,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:21:11.661974",
+      "query": "What do dogs do?",
+      "latency": 30.003865718841553,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:21:12.662226",
+      "query": "Can birds fly?",
+      "latency": 30.00418519973755,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:21:13.661592",
+      "query": "What are domestic pets?",
+      "latency": 30.003940105438232,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:21:14.662185",
+      "query": "Tell me about mammals",
+      "latency": 30.00417184829712,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:21:32.357237",
+      "query": "How do hummingbirds move?",
+      "latency": 26.68823218345642,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:21:34.630131",
+      "query": "Tell me about cats",
+      "latency": 27.967293977737427,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:21:36.933817",
+      "query": "What do dogs do?",
+      "latency": 29.271919012069702,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:21:38.665392",
+      "query": "Can birds fly?",
+      "latency": 30.0038001537323,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:21:39.665873",
+      "query": "What are domestic pets?",
+      "latency": 30.0039222240448,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:21:40.664758",
+      "query": "Tell me about mammals",
+      "latency": 30.003394842147827,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:21:41.665743",
+      "query": "How do hummingbirds move?",
+      "latency": 30.00372815132141,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:21:42.665421",
+      "query": "Tell me about cats",
+      "latency": 30.003139972686768,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:21:43.664908",
+      "query": "What do dogs do?",
+      "latency": 30.003280878067017,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:21:44.666570",
+      "query": "Can birds fly?",
+      "latency": 30.00434684753418,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:21:55.765792",
+      "query": "What are domestic pets?",
+      "latency": 23.40686798095703,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:21:57.864355",
+      "query": "Tell me about mammals",
+      "latency": 23.234044075012207,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:21:59.975187",
+      "query": "How do hummingbirds move?",
+      "latency": 23.041183948516846,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:22:02.073592",
+      "query": "Tell me about cats",
+      "latency": 23.40813398361206,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:22:04.231986",
+      "query": "What do dogs do?",
+      "latency": 24.5660719871521,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:22:06.330289",
+      "query": "Can birds fly?",
+      "latency": 25.665491819381714,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:22:08.531201",
+      "query": "What are domestic pets?",
+      "latency": 26.865410804748535,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:22:11.232730",
+      "query": "Tell me about mammals",
+      "latency": 28.567261219024658,
+      "status_code": 200,
+      "success": true
+    }
+  ],
+  "optimized_detailed_results": [
+    {
+      "timestamp": "2025-04-09T16:22:47.367340",
+      "query": "How do hummingbirds move?",
+      "latency": 25.112450122833252,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:22:53.259601",
+      "query": "Tell me about cats",
+      "latency": 30.00402593612671,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:22:54.259262",
+      "query": "What do dogs do?",
+      "latency": 30.00368094444275,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:22:55.256182",
+      "query": "Can birds fly?",
+      "latency": 30.0053288936615,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:22:56.259878",
+      "query": "What are domestic pets?",
+      "latency": 30.004196882247925,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:22:57.259287",
+      "query": "Tell me about mammals",
+      "latency": 30.004036903381348,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:22:58.258767",
+      "query": "How do hummingbirds move?",
+      "latency": 30.003181219100952,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:22:59.260997",
+      "query": "Tell me about cats",
+      "latency": 30.004884958267212,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:23:00.260451",
+      "query": "What do dogs do?",
+      "latency": 30.004590034484863,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:23:01.261254",
+      "query": "Can birds fly?",
+      "latency": 30.005096912384033,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:23:17.375261",
+      "query": "What are domestic pets?",
+      "latency": 30.00752305984497,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:23:19.139070",
+      "query": "How do hummingbirds move?",
+      "latency": 24.87977695465088,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:23:19.139631",
+      "query": "Tell me about mammals",
+      "latency": 25.87999415397644,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:23:25.164440",
+      "query": "Tell me about cats",
+      "latency": 29.90821623802185,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:23:25.266092",
+      "query": "Can birds fly?",
+      "latency": 28.006767749786377,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:23:25.266814",
+      "query": "What do dogs do?",
+      "latency": 29.006851196289062,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:23:28.262574",
+      "query": "What are domestic pets?",
+      "latency": 30.003742933273315,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:23:29.264407",
+      "query": "Tell me about mammals",
+      "latency": 30.003373861312866,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:23:30.265270",
+      "query": "How do hummingbirds move?",
+      "latency": 30.00478506088257,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:23:31.267386",
+      "query": "Tell me about cats",
+      "latency": 30.00609302520752,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:23:37.195552",
+      "query": "What do dogs do?",
+      "latency": 19.820151805877686,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:23:37.237839",
+      "query": "What are domestic pets?",
+      "latency": 18.09784197807312,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:23:43.098816",
+      "query": "Can birds fly?",
+      "latency": 23.959018230438232,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:23:43.160216",
+      "query": "Tell me about cats",
+      "latency": 17.892860889434814,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:23:43.160436",
+      "query": "Tell me about mammals",
+      "latency": 17.99589467048645,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:23:49.125498",
+      "query": "How do hummingbirds move?",
+      "latency": 23.858444213867188,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:23:49.175188",
+      "query": "Can birds fly?",
+      "latency": 19.910737991333008,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:23:49.176318",
+      "query": "What do dogs do?",
+      "latency": 20.913655996322632,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:23:55.291475",
+      "query": "How do hummingbirds move?",
+      "latency": 18.09575390815735,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:23:55.328755",
+      "query": "Tell me about mammals",
+      "latency": 24.06132698059082,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:23:55.329276",
+      "query": "What are domestic pets?",
+      "latency": 25.06397008895874,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:01.398427",
+      "query": "Tell me about cats",
+      "latency": 24.160322189331055,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:01.398996",
+      "query": "What do dogs do?",
+      "latency": 18.299972772598267,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:01.454505",
+      "query": "What are domestic pets?",
+      "latency": 18.293060064315796,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:07.694409",
+      "query": "Tell me about cats",
+      "latency": 18.517716884613037,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:07.724163",
+      "query": "Can birds fly?",
+      "latency": 24.563567876815796,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:07.725017",
+      "query": "Tell me about mammals",
+      "latency": 18.5991268157959,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:13.964626",
+      "query": "How do hummingbirds move?",
+      "latency": 24.788144826889038,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:13.990510",
+      "query": "What do dogs do?",
+      "latency": 18.698670148849487,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:14.034704",
+      "query": "What are domestic pets?",
+      "latency": 18.704599142074585,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:20.421849",
+      "query": "Can birds fly?",
+      "latency": 25.092145919799805,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:20.423282",
+      "query": "How do hummingbirds move?",
+      "latency": 19.023815155029297,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:20.425108",
+      "query": "Tell me about mammals",
+      "latency": 19.025929927825928,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:26.729830",
+      "query": "Tell me about cats",
+      "latency": 25.27498769760132,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:26.731716",
+      "query": "Can birds fly?",
+      "latency": 19.00727391242981,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:26.801397",
+      "query": "What do dogs do?",
+      "latency": 19.10677456855774,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:33.475614",
+      "query": "Tell me about mammals",
+      "latency": 19.51068902015686,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:33.496965",
+      "query": "What are domestic pets?",
+      "latency": 25.771816968917847,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:33.497546",
+      "query": "How do hummingbirds move?",
+      "latency": 19.506850957870483,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:39.338060",
+      "query": "Can birds fly?",
+      "latency": 18.912545919418335,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:39.338955",
+      "query": "What are domestic pets?",
+      "latency": 18.912896871566772,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:39.412609",
+      "query": "Tell me about cats",
+      "latency": 25.37768816947937,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:45.407554",
+      "query": "What do dogs do?",
+      "latency": 24.983794927597046,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:45.457237",
+      "query": "How do hummingbirds move?",
+      "latency": 18.7252459526062,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:45.457677",
+      "query": "Tell me about mammals",
+      "latency": 18.72694706916809,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:51.473461",
+      "query": "Tell me about cats",
+      "latency": 24.671903371810913,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:51.474631",
+      "query": "What do dogs do?",
+      "latency": 17.998756885528564,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:51.488074",
+      "query": "Can birds fly?",
+      "latency": 17.990220069885254,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:55.316308",
+      "query": "Tell me about mammals",
+      "latency": 15.97710394859314,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:24:55.327350",
+      "query": "What are domestic pets?",
+      "latency": 21.829100131988525,
+      "status_code": 200,
+      "success": true
+    }
+  ],
+  "improvements": {
+    "latency_improvement_percent": -78.14766725887587,
+    "throughput_improvement_percent": 0.0
+  }
+}

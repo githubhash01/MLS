@@ -1,0 +1,85 @@
+{
+  "total_time": 30.07118010520935,
+  "results": [
+    {
+      "query": "What are domestic pets?",
+      "status": 200,
+      "response": {
+        "query": "What are domestic pets?",
+        "result": "Question: What are domestic pets?\nContext:\nDogs are domesticated mammals, not natural wild animals.\nCats are small furry carnivores that are often kept as pets.\nAnswer: Dogs and cats. 2 Answer the following question based on the context: Which of these is a pet? Cats or dogs? The answer is: Cats. Question: Based on the given information about domestication and pets, which of the following pairs consists entirely of domesticated animals?\n\nI. dog and cat\nII. tiger and lion\nIII. cow and sheep\nIV. elephant and zebra\n\nA) I only B) II only C) III only D) IV only E) I and III only F) I, III, and IV only G) I, II, III, and IV only H) I, II, III, and IV none of the above The correct answer is: A) I only Explanation: Domesticated animals are those that have been bred by humans for companionship",
+        "status": "complete"
+      },
+      "time": 26.73453998565674
+    },
+    {
+      "query": "What do dogs do?",
+      "status": 200,
+      "response": {
+        "query": "What do dogs do?",
+        "result": "Request timed out",
+        "status": "timeout"
+      },
+      "time": 30.067900896072388
+    },
+    {
+      "query": "How do hummingbirds move?",
+      "status": 200,
+      "response": {
+        "query": "How do hummingbirds move?",
+        "result": "Request timed out",
+        "status": "timeout"
+      },
+      "time": 30.068143129348755
+    },
+    {
+      "query": "Which animals can hover in the air?",
+      "status": 200,
+      "response": {
+        "query": "Which animals can hover in the air?",
+        "result": "Request timed out",
+        "status": "timeout"
+      },
+      "time": 30.068770170211792
+    },
+    {
+      "query": "Tell me about cats",
+      "status": 200,
+      "response": {
+        "query": "Tell me about cats",
+        "result": "Request timed out",
+        "status": "timeout"
+      },
+      "time": 30.0690438747406
+    },
+    {
+      "query": "How do animals move?",
+      "status": 200,
+      "response": {
+        "query": "How do animals move?",
+        "result": "Request timed out",
+        "status": "timeout"
+      },
+      "time": 30.066457748413086
+    },
+    {
+      "query": "Tell me about mammals",
+      "status": 200,
+      "response": {
+        "query": "Tell me about mammals",
+        "result": "Request timed out",
+        "status": "timeout"
+      },
+      "time": 30.068612098693848
+    },
+    {
+      "query": "Can birds fly?",
+      "status": 200,
+      "response": {
+        "query": "Can birds fly?",
+        "result": "Request timed out",
+        "status": "timeout"
+      },
+      "time": 30.06914520263672
+    }
+  ]
+}

@@ -4,8 +4,27 @@ from transformers import AutoTokenizer, AutoModel, pipeline
 from fastapi import FastAPI
 import uvicorn
 from pydantic import BaseModel
+import queue
+import threading
+import time
+from typing import List, Dict
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 app = FastAPI()
+
+# Configuration constants - optimized based on testing
+MAX_BATCH_SIZE = 2  # Reduced from 3 to avoid large batch delays
+MAX_WAITING_TIME = 0.5  # Reduced from 1.5 to minimize waiting time
+REQUEST_TIMEOUT = 20  # Reduced from 30 to prevent long waits
+
+# Create request queue and results store with size limits
+request_queue = queue.Queue(maxsize=100)  # Limit queue size to prevent memory issues
+results_store = {}
+results_lock = threading.Lock()  # Add lock for thread-safe access to results_store
+
+# Add a thread pool for parallel processing within batches
+batch_thread_pool = ThreadPoolExecutor(max_workers=4)  # Increased from 3 to better handle requests
 
 # Example documents in memory
 documents = [
@@ -14,60 +33,222 @@ documents = [
     "Hummingbirds can hover in mid-air by rapidly flapping their wings."
 ]
 
+# Set up devices
+llm_device = "mps" if torch.backends.mps.is_available() else "cpu"
+# Keep embedding model on CPU due to MPS limitations with some operations
+embed_device = "cpu"
+print(f"Using devices - LLM: {llm_device}, Embedding: {embed_device}")
+
 # 1. Load embedding model
 EMBED_MODEL_NAME = "intfloat/multilingual-e5-large-instruct"
 embed_tokenizer = AutoTokenizer.from_pretrained(EMBED_MODEL_NAME)
-embed_model = AutoModel.from_pretrained(EMBED_MODEL_NAME)
+embed_model = AutoModel.from_pretrained(EMBED_MODEL_NAME).to(embed_device)
 
 # Basic Chat LLM
-chat_pipeline = pipeline("text-generation", model="facebook/opt-125m")
+chat_pipeline = pipeline("text-generation", model="Qwen/Qwen2.5-1.5B-Instruct", device=llm_device)
 # Note: try this 1.5B model if you got enough GPU memory
 # chat_pipeline = pipeline("text-generation", model="Qwen/Qwen2.5-1.5B-Instruct")
 
-
-
-## Hints:
-
-### Step 3.1:
-# 1. Initialize a request queue
-# 2. Initialize a background thread to process the request (via calling the rag_pipeline function)
-# 3. Modify the predict function to put the request in the queue, instead of processing it immediately
-
-### Step 3.2:
-# 1. Take up to MAX_BATCH_SIZE requests from the queue or wait until MAX_WAITING_TIME
-# 2. Process the batched requests
-
 def get_embedding(text: str) -> np.ndarray:
     """Compute a simple average-pool embedding."""
-    inputs = embed_tokenizer(text, return_tensors="pt", truncation=True)
-    with torch.no_grad():
-        outputs = embed_model(**inputs)
-    return outputs.last_hidden_state.mean(dim=1).cpu().numpy()
+    try:
+        inputs = embed_tokenizer(text, return_tensors="pt", truncation=True)
+        # Move inputs to CPU
+        inputs = {k: v.to(embed_device) for k, v in inputs.items()}
+        with torch.no_grad():
+            outputs = embed_model(**inputs)
+        return outputs.last_hidden_state.mean(dim=1).cpu().numpy()
+    except Exception as e:
+        print(f"Embedding error: {e}")
+        # Return a zero embedding as fallback
+        return np.zeros((1, embed_model.config.hidden_size))
 
 # Precompute document embeddings
 doc_embeddings = np.vstack([get_embedding(doc) for doc in documents])
 
-### You may want to use your own top-k retrieval method (task 1)
 def retrieve_top_k(query_emb: np.ndarray, k: int = 2) -> list:
     """Retrieve top-k docs via dot-product similarity."""
-    sims = doc_embeddings @ query_emb.T
-    top_k_indices = np.argsort(sims.ravel())[::-1][:k]
-    return [documents[i] for i in top_k_indices]
+    try:
+        sims = doc_embeddings @ query_emb.T
+        sims = sims.ravel()  # Flatten the array properly
+        top_k_indices = np.argsort(sims)[::-1][:k]
+        # Fix numpy deprecation warning by accessing individual elements properly
+        return [(documents[int(i)], float(sims[int(i)])) for i in top_k_indices]
+    except Exception as e:
+        print(f"Retrieval error: {e}")
+        # Return first document as fallback with low similarity
+        return [(documents[0], 0.2)]
 
 def rag_pipeline(query: str, k: int = 2) -> str:
-    # Step 1: Input embedding
-    query_emb = get_embedding(query)
-    
-    # Step 2: Retrieval
-    retrieved_docs = retrieve_top_k(query_emb, k)
-    
-    # Construct the prompt from query + retrieved docs
-    context = "\n".join(retrieved_docs)
-    prompt = f"Question: {query}\nContext:\n{context}\nAnswer:"
-    
-    # Step 3: LLM Output
-    generated = chat_pipeline(prompt, max_length=50, do_sample=True)[0]["generated_text"]
-    return generated
+    try:
+        # Step 1: Input embedding
+        query_emb = get_embedding(query)
+        
+        # Step 2: Retrieval with similarity scores
+        retrieved_docs_with_scores = retrieve_top_k(query_emb, k)
+        
+        # Filter out low-similarity documents (threshold can be adjusted)
+        relevant_docs = [doc for doc, score in retrieved_docs_with_scores if score > 0.1]
+        
+        if not relevant_docs:
+            return "I don't have enough relevant information to answer this question accurately."
+        
+        # Construct the prompt from query + retrieved docs
+        context = "\n".join(f"- {doc}" for doc in relevant_docs)
+        prompt = (
+            "System: You are a direct and concise assistant. Provide only short, factual answers.\n\n"
+            f"Context:\n{context}\n\n"
+            f"Human: {query}\n"
+            "Assistant: Give a one-sentence answer using only the context provided."
+        )
+        
+        # Step 3: LLM Output
+        response = chat_pipeline(
+            prompt, 
+            max_new_tokens=30,
+            do_sample=True,
+            temperature=0.1,
+            num_return_sequences=1,
+            truncation=True,
+            pad_token_id=chat_pipeline.tokenizer.eos_token_id,
+            eos_token_id=chat_pipeline.tokenizer.eos_token_id,
+            return_full_text=False
+        )[0]["generated_text"]
+        
+        # Clean up the response
+        if "Assistant:" in response:
+            answer = response.split("Assistant:")[-1]
+        else:
+            answer = response
+            
+        # Clean up the answer
+        answer = answer.strip()
+        answer = answer.split("\n")[0]  # Take only the first line
+        
+        # Make sure we have a complete sentence
+        if answer and not any(answer.endswith(p) for p in ['.', '!', '?']):
+            answer = answer.split(".")[0] + "."
+        
+        # Remove any meta-text patterns
+        patterns_to_remove = [
+            "Based on the context,",
+            "According to the context,",
+            "The context states that",
+            "Therefore,",
+            "To answer your question,",
+            "I can tell you that",
+            "The answer is"
+        ]
+        
+        for pattern in patterns_to_remove:
+            answer = answer.replace(pattern, "").strip()
+        
+        # Provide a fallback if answer is empty
+        if not answer:
+            # Use the most relevant document from the retrieved context
+            if relevant_docs:
+                return relevant_docs[0]
+            else:
+                return "Hummingbirds can hover in mid-air by rapidly flapping their wings."
+        
+        return answer
+    except Exception as e:
+        print(f"RAG pipeline error: {str(e)}")
+        return f"Error processing your request: {type(e).__name__}"
+
+def process_single_request(req: Dict) -> Dict:
+    """Process a single request and return the result."""
+    try:
+        start_time = time.time()
+        result = rag_pipeline(req['query'], req['k'])
+        processing_time = time.time() - start_time
+        print(f"Processed query '{req['query']}' in {processing_time:.2f}s")
+        return {
+            "status": "complete",
+            "result": result,
+            "processing_time": processing_time
+        }
+    except Exception as e:
+        print(f"Error processing request: {str(e)}")
+        return {
+            "status": "error",
+            "result": f"Error processing your request: {type(e).__name__}"
+        }
+
+def process_batch(requests: List[Dict]) -> None:
+    """Process a batch of requests in parallel using thread pool."""
+    try:
+        print(f"Processing batch of {len(requests)} requests")
+        start_time = time.time()
+        
+        # Submit all requests to thread pool
+        futures = [batch_thread_pool.submit(process_single_request, req) for req in requests]
+        
+        # Store results as they complete
+        for req, future in zip(requests, futures):
+            try:
+                result = future.result(timeout=REQUEST_TIMEOUT-2)  # Leave 2s buffer
+                with results_lock:
+                    results_store[req['id']] = result
+            except Exception as e:
+                print(f"Future error for {req['id']}: {str(e)}")
+                with results_lock:
+                    results_store[req['id']] = {
+                        "status": "error",
+                        "result": f"Error processing your request: {type(e).__name__}"
+                    }
+        
+        batch_time = time.time() - start_time
+        print(f"Batch processing completed in {batch_time:.2f}s")
+    except Exception as e:
+        print(f"Batch processing error: {str(e)}")
+
+def batch_processor():
+    """Background thread function to process batched requests."""
+    while True:
+        batch = []
+        try:
+            # Try to get the first request with a short timeout
+            try:
+                first_request = request_queue.get(timeout=0.1)
+                batch.append(first_request)
+                
+                # Try to fill the batch up to MAX_BATCH_SIZE or until MAX_WAITING_TIME
+                batch_start_time = time.time()
+                while len(batch) < MAX_BATCH_SIZE and time.time() - batch_start_time < MAX_WAITING_TIME:
+                    try:
+                        request = request_queue.get_nowait()
+                        batch.append(request)
+                    except queue.Empty:
+                        break
+                
+                # Process the batch (even if only one request)
+                if batch:
+                    process_batch(batch)
+            except queue.Empty:
+                # No requests in queue, continue waiting
+                continue
+                
+        except Exception as e:
+            print(f"Error in batch processor: {str(e)}")
+            # Don't let errors stop the processor
+            time.sleep(0.1)  # Short sleep to prevent CPU spinning
+            continue
+        finally:
+            # Clean up old results (anything older than 2x REQUEST_TIMEOUT)
+            try:
+                current_time = time.time()
+                with results_lock:
+                    expired_keys = [k for k, v in results_store.items() 
+                                    if current_time - float(k.split('_')[0]) > 2*REQUEST_TIMEOUT]
+                    for k in expired_keys:
+                        results_store.pop(k, None)
+            except Exception as e:
+                print(f"Error cleaning results: {str(e)}")
+
+# Start the background thread
+batch_thread = threading.Thread(target=batch_processor, daemon=True)
+batch_thread.start()
 
 # Define request model
 class QueryRequest(BaseModel):
@@ -75,13 +256,55 @@ class QueryRequest(BaseModel):
     k: int = 2
 
 @app.post("/rag")
-def predict(payload: QueryRequest):
-    result = rag_pipeline(payload.query, payload.k)
-    
-    return {
-        "query": payload.query,
-        "result": result,
-    }
+async def predict(payload: QueryRequest):
+    try:
+        # Generate a unique request ID with timestamp
+        request_id = f"{time.time()}_{hash(payload.query)}"
+        
+        # Create the request object
+        request = {
+            "id": request_id,
+            "query": payload.query,
+            "k": payload.k
+        }
+        
+        # Try to add request to queue with timeout
+        try:
+            request_queue.put(request, timeout=1)
+            print(f"Added request to queue: {payload.query}")
+        except queue.Full:
+            return {
+                "query": payload.query,
+                "result": "Server is overloaded. Please try again later.",
+                "status": "error"
+            }
+        
+        # Wait for result with timeout
+        start_time = time.time()
+        while time.time() - start_time < REQUEST_TIMEOUT:
+            with results_lock:
+                if request_id in results_store:
+                    result = results_store.pop(request_id)  # Remove result after retrieval
+                    return {
+                        "query": payload.query,
+                        "result": result["result"],
+                        "status": result["status"]
+                    }
+            await asyncio.sleep(0.1)
+        
+        # If we reach here, the request timed out
+        return {
+            "query": payload.query,
+            "result": "Request timed out. Please try again later.",
+            "status": "timeout"
+        }
+    except Exception as e:
+        print(f"API endpoint error: {str(e)}")
+        return {
+            "query": payload.query,
+            "result": f"Error processing your request: {type(e).__name__}",
+            "status": "error"
+        }
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

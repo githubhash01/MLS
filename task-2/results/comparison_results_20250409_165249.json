@@ -1,0 +1,931 @@
+{
+  "test_parameters": {
+    "rate": 2.0,
+    "duration": 30,
+    "max_workers": 10
+  },
+  "original_metrics": {
+    "total_requests": 60,
+    "success_rate": 55.00000000000001,
+    "avg_latency": 26.591943907737733,
+    "p50_latency": 27.374732613563538,
+    "p95_latency": 30.00425043106079,
+    "p99_latency": 30.019400155544282,
+    "min_latency": 20.98294997215271,
+    "max_latency": 30.026745080947876
+  },
+  "optimized_metrics": {
+    "total_requests": 60,
+    "success_rate": 51.66666666666667,
+    "avg_latency": 39.93806169827779,
+    "p50_latency": 30.00421142578125,
+    "p95_latency": 103.9563865184784,
+    "p99_latency": 107.20088985681532,
+    "min_latency": 18.378790140151978,
+    "max_latency": 110.37083292007446
+  },
+  "original_detailed_results": [
+    {
+      "timestamp": "2025-04-09T16:46:07.872589",
+      "query": "How do hummingbirds move?",
+      "latency": 30.014296054840088,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:46:08.362197",
+      "query": "Tell me about cats",
+      "latency": 30.003822088241577,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:46:08.862118",
+      "query": "What do dogs do?",
+      "latency": 30.00452494621277,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:46:09.361267",
+      "query": "Can birds fly?",
+      "latency": 30.00302505493164,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:46:09.859340",
+      "query": "What are domestic pets?",
+      "latency": 30.00313973426819,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:46:10.384955",
+      "query": "Tell me about mammals",
+      "latency": 30.026745080947876,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:46:10.861495",
+      "query": "How do hummingbirds move?",
+      "latency": 30.003223180770874,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:46:11.361239",
+      "query": "Tell me about cats",
+      "latency": 30.003185033798218,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:46:11.861716",
+      "query": "What do dogs do?",
+      "latency": 30.003331899642944,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:46:12.361858",
+      "query": "Can birds fly?",
+      "latency": 30.00354790687561,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:46:36.851685",
+      "query": "What are domestic pets?",
+      "latency": 28.978913068771362,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:46:38.365932",
+      "query": "Tell me about mammals",
+      "latency": 30.003675937652588,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:46:38.866033",
+      "query": "How do hummingbirds move?",
+      "latency": 30.00385284423828,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:46:39.364322",
+      "query": "Tell me about cats",
+      "latency": 30.00301694869995,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:46:39.862584",
+      "query": "What do dogs do?",
+      "latency": 30.00321316719055,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:46:40.388660",
+      "query": "Can birds fly?",
+      "latency": 30.003664255142212,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:46:40.865818",
+      "query": "What are domestic pets?",
+      "latency": 30.004235982894897,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:46:41.364702",
+      "query": "Tell me about mammals",
+      "latency": 30.003401041030884,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:46:41.864878",
+      "query": "How do hummingbirds move?",
+      "latency": 30.003128051757812,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:46:42.364924",
+      "query": "Tell me about cats",
+      "latency": 30.003013849258423,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:47:00.336400",
+      "query": "What do dogs do?",
+      "latency": 23.48405408859253,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:47:02.999160",
+      "query": "Can birds fly?",
+      "latency": 24.63317608833313,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:47:05.321604",
+      "query": "What are domestic pets?",
+      "latency": 26.455521821975708,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:47:07.606809",
+      "query": "Tell me about mammals",
+      "latency": 28.24242901802063,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:47:09.866258",
+      "query": "How do hummingbirds move?",
+      "latency": 30.003632068634033,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:47:10.392113",
+      "query": "Tell me about cats",
+      "latency": 30.00338625907898,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:47:10.868853",
+      "query": "What do dogs do?",
+      "latency": 30.002994060516357,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:47:11.368008",
+      "query": "Can birds fly?",
+      "latency": 30.003262042999268,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:47:11.867599",
+      "query": "What are domestic pets?",
+      "latency": 30.002689123153687,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:47:12.368547",
+      "query": "Tell me about mammals",
+      "latency": 30.00357985496521,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:47:23.677242",
+      "query": "How do hummingbirds move?",
+      "latency": 23.33538317680359,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:47:25.972176",
+      "query": "Tell me about cats",
+      "latency": 22.972875118255615,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:47:28.234509",
+      "query": "What do dogs do?",
+      "latency": 22.91270089149475,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:47:30.525342",
+      "query": "Can birds fly?",
+      "latency": 22.91831874847412,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:47:32.808230",
+      "query": "What are domestic pets?",
+      "latency": 22.94193696975708,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:47:35.077074",
+      "query": "Tell me about mammals",
+      "latency": 24.68492078781128,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:47:37.375919",
+      "query": "How do hummingbirds move?",
+      "latency": 26.507036209106445,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:47:39.688525",
+      "query": "Tell me about cats",
+      "latency": 28.320483207702637,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:47:41.871201",
+      "query": "What do dogs do?",
+      "latency": 30.003571033477783,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:47:42.371928",
+      "query": "Can birds fly?",
+      "latency": 30.003342151641846,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:47:46.546572",
+      "query": "What are domestic pets?",
+      "latency": 22.86920976638794,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:47:48.848691",
+      "query": "Tell me about mammals",
+      "latency": 22.876386880874634,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:47:51.123946",
+      "query": "How do hummingbirds move?",
+      "latency": 22.889270782470703,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:47:53.505019",
+      "query": "Tell me about cats",
+      "latency": 22.979538202285767,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:47:55.805541",
+      "query": "What do dogs do?",
+      "latency": 22.99721097946167,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:47:58.125077",
+      "query": "Can birds fly?",
+      "latency": 23.047857999801636,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:48:00.419762",
+      "query": "What are domestic pets?",
+      "latency": 23.04374122619629,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:48:02.695977",
+      "query": "Tell me about mammals",
+      "latency": 23.007318019866943,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:48:05.681489",
+      "query": "How do hummingbirds move?",
+      "latency": 23.810207843780518,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:48:08.120768",
+      "query": "Tell me about cats",
+      "latency": 25.74880290031433,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:48:10.224184",
+      "query": "What do dogs do?",
+      "latency": 23.677483081817627,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:48:12.285793",
+      "query": "Can birds fly?",
+      "latency": 23.4369158744812,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:48:14.397598",
+      "query": "What are domestic pets?",
+      "latency": 23.273513078689575,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:48:16.528260",
+      "query": "Tell me about mammals",
+      "latency": 23.02314019203186,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:48:18.627616",
+      "query": "How do hummingbirds move?",
+      "latency": 22.82192587852478,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:48:20.736505",
+      "query": "Tell me about cats",
+      "latency": 22.611320972442627,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:48:22.798694",
+      "query": "What do dogs do?",
+      "latency": 22.378828048706055,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:48:24.885978",
+      "query": "Can birds fly?",
+      "latency": 22.189855098724365,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:48:27.018816",
+      "query": "What are domestic pets?",
+      "latency": 21.33690881729126,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:48:29.103921",
+      "query": "Tell me about mammals",
+      "latency": 20.98294997215271,
+      "status_code": 200,
+      "success": true
+    }
+  ],
+  "optimized_detailed_results": [
+    {
+      "timestamp": "2025-04-09T16:49:04.783929",
+      "query": "How do hummingbirds move?",
+      "latency": 25.16513729095459,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:49:10.151398",
+      "query": "Tell me about cats",
+      "latency": 30.03199791908264,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:49:10.623889",
+      "query": "What do dogs do?",
+      "latency": 30.003268003463745,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:49:11.124931",
+      "query": "Can birds fly?",
+      "latency": 30.003480911254883,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:49:11.625814",
+      "query": "What are domestic pets?",
+      "latency": 30.004241704940796,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:49:12.125280",
+      "query": "Tell me about mammals",
+      "latency": 30.003722190856934,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:49:12.623163",
+      "query": "How do hummingbirds move?",
+      "latency": 30.003664016723633,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:49:13.301344",
+      "query": "Tell me about cats",
+      "latency": 30.03385019302368,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:49:13.652722",
+      "query": "What do dogs do?",
+      "latency": 30.006002187728882,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:49:14.125701",
+      "query": "Can birds fly?",
+      "latency": 30.00407099723816,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:50:55.048934",
+      "query": "Tell me about cats",
+      "latency": 100.92315602302551,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:50:55.049686",
+      "query": "What are domestic pets?",
+      "latency": 102.42644691467285,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:50:55.050357",
+      "query": "What do dogs do?",
+      "latency": 103.42447900772095,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:50:55.050677",
+      "query": "Can birds fly?",
+      "latency": 102.92536067962646,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:50:55.051696",
+      "query": "Tell me about cats",
+      "latency": 103.92670202255249,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:50:55.144356",
+      "query": "How do hummingbirds move?",
+      "latency": 104.52039194107056,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:50:55.149522",
+      "query": "Tell me about mammals",
+      "latency": 104.9980480670929,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:50:55.152291",
+      "query": "Tell me about mammals",
+      "latency": 101.85088992118835,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:50:55.155158",
+      "query": "What are domestic pets?",
+      "latency": 110.37083292007446,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:50:55.158213",
+      "query": "How do hummingbirds move?",
+      "latency": 101.50545406341553,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:51:25.155440",
+      "query": "How do hummingbirds move?",
+      "latency": 30.10342025756836,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:51:25.190075",
+      "query": "Tell me about mammals",
+      "latency": 30.1382839679718,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:51:25.191043",
+      "query": "What do dogs do?",
+      "latency": 30.038673877716064,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:51:25.191262",
+      "query": "What do dogs do?",
+      "latency": 30.140466928482056,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:51:25.191965",
+      "query": "Can birds fly?",
+      "latency": 30.1410129070282,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:51:25.201656",
+      "query": "What are domestic pets?",
+      "latency": 30.150246143341064,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:51:25.203724",
+      "query": "Can birds fly?",
+      "latency": 30.048341989517212,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:51:25.203860",
+      "query": "What are domestic pets?",
+      "latency": 30.04769277572632,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:51:25.205920",
+      "query": "Tell me about cats",
+      "latency": 30.054182767868042,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:51:25.206053",
+      "query": "Tell me about mammals",
+      "latency": 30.046906232833862,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:51:49.223401",
+      "query": "How do hummingbirds move?",
+      "latency": 24.067742109298706,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:51:55.026733",
+      "query": "Tell me about cats",
+      "latency": 29.836617946624756,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:51:55.027646",
+      "query": "What are domestic pets?",
+      "latency": 29.83566403388977,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:51:55.028504",
+      "query": "What do dogs do?",
+      "latency": 29.83743405342102,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:51:55.195888",
+      "query": "Can birds fly?",
+      "latency": 30.00460696220398,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:51:55.202107",
+      "query": "Tell me about mammals",
+      "latency": 30.000421047210693,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:51:55.207927",
+      "query": "How do hummingbirds move?",
+      "latency": 30.004181146621704,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:51:55.208347",
+      "query": "Tell me about cats",
+      "latency": 30.00446319580078,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:51:55.208940",
+      "query": "What do dogs do?",
+      "latency": 30.002995014190674,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:51:55.209140",
+      "query": "Can birds fly?",
+      "latency": 30.003068923950195,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:52:13.399339",
+      "query": "What are domestic pets?",
+      "latency": 24.175678253173828,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:52:13.406601",
+      "query": "Tell me about mammals",
+      "latency": 18.378790140151978,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:52:13.407264",
+      "query": "How do hummingbirds move?",
+      "latency": 18.379223823547363,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:52:19.686426",
+      "query": "What do dogs do?",
+      "latency": 24.490484952926636,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:52:19.687048",
+      "query": "Can birds fly?",
+      "latency": 24.484889030456543,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:52:19.687681",
+      "query": "Tell me about cats",
+      "latency": 24.658885717391968,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:52:25.216726",
+      "query": "Tell me about mammals",
+      "latency": 30.008285999298096,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:52:25.217734",
+      "query": "How do hummingbirds move?",
+      "latency": 30.008763074874878,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:52:25.217902",
+      "query": "What are domestic pets?",
+      "latency": 30.00993299484253,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:52:25.218050",
+      "query": "Tell me about cats",
+      "latency": 30.008872985839844,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T16:52:32.838926",
+      "query": "What do dogs do?",
+      "latency": 19.43904209136963,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:52:32.839988",
+      "query": "Can birds fly?",
+      "latency": 19.432541847229004,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:52:38.907089",
+      "query": "What are domestic pets?",
+      "latency": 25.499363899230957,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:52:38.908359",
+      "query": "Tell me about mammals",
+      "latency": 19.221168279647827,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:52:38.909323",
+      "query": "Tell me about cats",
+      "latency": 19.22125005722046,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:52:44.853510",
+      "query": "Can birds fly?",
+      "latency": 19.635746002197266,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:52:44.854017",
+      "query": "What do dogs do?",
+      "latency": 19.6369891166687,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:52:44.878423",
+      "query": "How do hummingbirds move?",
+      "latency": 25.190587759017944,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:52:49.100567",
+      "query": "What are domestic pets?",
+      "latency": 23.88263773918152,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T16:52:49.101012",
+      "query": "Tell me about mammals",
+      "latency": 23.882948875427246,
+      "status_code": 200,
+      "success": true
+    }
+  ],
+  "improvements": {
+    "latency_improvement_percent": -50.188575295003545,
+    "throughput_improvement_percent": 0.0
+  }
+}

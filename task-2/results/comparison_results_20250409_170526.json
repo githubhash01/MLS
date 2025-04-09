@@ -1,0 +1,249 @@
+{
+  "test_parameters": {
+    "rate": 0.5,
+    "duration": 30,
+    "max_workers": 5
+  },
+  "original_metrics": {
+    "total_requests": 15,
+    "success_rate": 100.0,
+    "avg_latency": 7.9388287703196205,
+    "p50_latency": 8.052459001541138,
+    "p95_latency": 9.786998653411866,
+    "p99_latency": 9.948468570709228,
+    "min_latency": 5.595706224441528,
+    "max_latency": 9.98883605003357
+  },
+  "optimized_metrics": {
+    "total_requests": 15,
+    "success_rate": 73.33333333333333,
+    "avg_latency": 17.987103525797526,
+    "p50_latency": 13.948537111282349,
+    "p95_latency": 30.006347560882567,
+    "p99_latency": 30.00839994430542,
+    "min_latency": 10.502457857131958,
+    "max_latency": 30.008913040161133
+  },
+  "original_detailed_results": [
+    {
+      "timestamp": "2025-04-09T17:03:41.247445",
+      "query": "How do hummingbirds move?",
+      "latency": 5.595706224441528,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:03:43.690140",
+      "query": "Tell me about cats",
+      "latency": 6.04373025894165,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:03:46.027962",
+      "query": "What do dogs do?",
+      "latency": 6.376954078674316,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:03:48.434488",
+      "query": "Can birds fly?",
+      "latency": 6.783676862716675,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:03:50.814621",
+      "query": "What are domestic pets?",
+      "latency": 7.16361403465271,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:03:53.133841",
+      "query": "Tell me about mammals",
+      "latency": 7.482931852340698,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:03:55.418885",
+      "query": "How do hummingbirds move?",
+      "latency": 7.770535230636597,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:03:57.703382",
+      "query": "Tell me about cats",
+      "latency": 8.052459001541138,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:03:59.941911",
+      "query": "What do dogs do?",
+      "latency": 8.29100489616394,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:04:02.214134",
+      "query": "Can birds fly?",
+      "latency": 8.56326413154602,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:04:04.485716",
+      "query": "What are domestic pets?",
+      "latency": 8.834849834442139,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:04:06.740182",
+      "query": "Tell me about mammals",
+      "latency": 9.08920407295227,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:04:08.996089",
+      "query": "How do hummingbirds move?",
+      "latency": 9.345168113708496,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:04:11.351363",
+      "query": "Tell me about cats",
+      "latency": 9.700496912002563,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:04:13.639731",
+      "query": "What do dogs do?",
+      "latency": 9.98883605003357,
+      "status_code": 200,
+      "success": true
+    }
+  ],
+  "optimized_detailed_results": [
+    {
+      "timestamp": "2025-04-09T17:04:50.760876",
+      "query": "How do hummingbirds move?",
+      "latency": 25.109814167022705,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:04:57.653946",
+      "query": "Tell me about cats",
+      "latency": 30.003326892852783,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T17:04:59.661465",
+      "query": "What do dogs do?",
+      "latency": 30.008913040161133,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T17:05:01.655755",
+      "query": "Can birds fly?",
+      "latency": 30.00442600250244,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T17:05:03.651895",
+      "query": "What are domestic pets?",
+      "latency": 30.005248069763184,
+      "status_code": 500,
+      "success": false,
+      "error": "HTTPConnectionPool(host='localhost', port=8000): Read timed out. (read timeout=30)"
+    },
+    {
+      "timestamp": "2025-04-09T17:05:09.079525",
+      "query": "How do hummingbirds move?",
+      "latency": 11.425415992736816,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:05:09.149876",
+      "query": "Tell me about mammals",
+      "latency": 18.388472080230713,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:05:15.582274",
+      "query": "Can birds fly?",
+      "latency": 11.930299043655396,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:05:15.604349",
+      "query": "What do dogs do?",
+      "latency": 13.948537111282349,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:05:15.643158",
+      "query": "Tell me about cats",
+      "latency": 15.981637716293335,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:05:19.652544",
+      "query": "Tell me about mammals",
+      "latency": 10.502457857131958,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:05:19.705540",
+      "query": "What are domestic pets?",
+      "latency": 10.625355005264282,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:05:26.214670",
+      "query": "How do hummingbirds move?",
+      "latency": 10.632114887237549,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:05:26.222192",
+      "query": "Tell me about cats",
+      "latency": 10.617638111114502,
+      "status_code": 200,
+      "success": true
+    },
+    {
+      "timestamp": "2025-04-09T17:05:26.266249",
+      "query": "What do dogs do?",
+      "latency": 10.622896909713745,
+      "status_code": 200,
+      "success": true
+    }
+  ],
+  "improvements": {
+    "latency_improvement_percent": -126.5712493138123,
+    "throughput_improvement_percent": 0.0
+  }
+}
