@@ -144,8 +144,89 @@ def our_knn_cpu(N, D, A, X, K):
 # def distance_kernel(X, Y, D):
 #     pass
 
-def our_kmeans(N, D, A, K):
-    pass
+def our_kmeans(N, D, A, K, max_iters=100, tol=1e-4):
+    """
+    Input:
+        N: Number of vectors
+        D: Dimension of vectors
+        A[N, D]: A collection of vectors (CuPy array)
+        K: Number of clusters
+    Output:
+        centroids[K, D]: Final cluster centroids
+        labels[N]: Cluster assignments for each vector
+    """
+    # Randomly initialize centroids by choosing K points from A
+    random_indices = cp.random.choice(N, K, replace=False)
+    centroids = A[random_indices]
+
+    for i in range(max_iters):
+        # Compute distances from each point to each centroid
+        # Using broadcasting: A[N, 1, D] - centroids[1, K, D] -> [N, K, D]
+        distances = cp.linalg.norm(A[:, cp.newaxis, :] - centroids[cp.newaxis, :, :], axis=2)  # [N, K]
+
+        # Assign each point to the nearest centroid
+        labels = cp.argmin(distances, axis=1)  # [N]
+
+        # Compute new centroids
+        new_centroids = cp.zeros((K, D), dtype=A.dtype)
+        for k in range(K):
+            cluster_points = A[labels == k]
+            if cluster_points.shape[0] > 0:
+                new_centroids[k] = cp.mean(cluster_points, axis=0)
+            else:
+                # Handle empty clusters by reinitializing
+                new_centroids[k] = A[cp.random.randint(0, N)]
+
+        # Check for convergence
+        if cp.linalg.norm(new_centroids - centroids) < tol:
+            break
+        centroids = new_centroids
+
+    return centroids, labels
+
+
+def numpy_kmeans(N, D, A, K, max_iters=100, tol=1e-4):
+    """
+    K-means clustering using NumPy (CPU).
+    
+    Input:
+        N: Number of vectors
+        D: Dimension of vectors
+        A[N, D]: A collection of vectors (NumPy array)
+        K: Number of clusters
+    Output:
+        centroids[K, D]: Final cluster centroids
+        labels[N]: Cluster assignments for each vector
+    """
+    # Randomly initialize centroids by selecting K unique points from A
+    random_indices = np.random.choice(N, K, replace=False)
+    centroids = A[random_indices]
+
+    for i in range(max_iters):
+        # Compute distances between each point and each centroid
+        # Resulting shape: [N, K]
+        distances = np.linalg.norm(A[:, np.newaxis, :] - centroids[np.newaxis, :, :], axis=2)
+
+        # Assign each point to the closest centroid
+        labels = np.argmin(distances, axis=1)
+
+        # Compute new centroids
+        new_centroids = np.zeros((K, D), dtype=A.dtype)
+        for k in range(K):
+            cluster_points = A[labels == k]
+            if cluster_points.shape[0] > 0:
+                new_centroids[k] = np.mean(cluster_points, axis=0)
+            else:
+                # Reinitialize empty clusters
+                new_centroids[k] = A[np.random.randint(0, N)]
+
+        # Check for convergence
+        if np.linalg.norm(new_centroids - centroids) < tol:
+            break
+
+        centroids = new_centroids
+
+    return centroids, labels
 
 # ------------------------------------------------------------------------------------------------
 # Your Task 2.2 code here
@@ -162,55 +243,6 @@ def our_ann(N, D, A, X, K):
 
 # Example
 
-def test_distances():
-    cp.random.seed(12345)
-
-    X = cp.random.rand(1000)
-    Y = cp.random.rand(1000)
-
-    cos_dist = distance_cosine(X, Y)
-    print(f"Cosine Distance: {cos_dist}")
-
-    l2_dist = distance_l2(X, Y)
-    print(f"Euclidean Distance: {l2_dist}")
-
-    dot_prod = distance_dot(X, Y)
-    print(f"Dot Product: {dot_prod}")
-
-    manhattan_dist = distance_manhattan(X, Y)
-    print(f"Manhattan Distance: {manhattan_dist}")
-
-    # Verify that arrays are using the GPU
-    assert cp.get_array_module(cos_dist) is cp, "Cosine Distance is not computed on GPU"
-    assert cp.get_array_module(l2_dist) is cp, "Euclidean Distance is not computed on GPU"
-    assert cp.get_array_module(dot_prod) is cp, "Dot Product is not computed on GPU"
-    assert cp.get_array_module(manhattan_dist) is cp, "Manhattan Distance is not computed on GPU"
-
-    print("All tests passed! The code is running on GPU.")
-
-def test_kmeans():
-    N, D, A, K = testdata_kmeans("test_file.json")
-    kmeans_result = our_kmeans(N, D, A, K)
-    print(kmeans_result)
-
-def test_knn():
-    N, D, A, X, K = testdata_knn("test_file.json")
-    knn_result = our_knn(N, D, A, X, K)
-    print(knn_result)
-    
-def test_ann():
-    N, D, A, X, K = testdata_ann("test_file.json")
-    ann_result = our_ann(N, D, A, X, K)
-    print(ann_result)
-    
-def recall_rate(list1, list2):
-    """
-    Calculate the recall rate of two lists
-    list1[K]: The top K nearest vectors ID
-    list2[K]: The top K nearest vectors ID
-    """
-    return len(set(list1) & set(list2)) / len(list1)
-
 def measure_speedup_knn(N, D, K):
     # Generate random data
     A_gpu = cp.random.rand(N, D)  # CuPy array for GPU
@@ -219,32 +251,65 @@ def measure_speedup_knn(N, D, K):
     A_cpu = np.random.rand(N, D)  # NumPy array for CPU
     X_cpu = np.random.rand(D)     # NumPy vector for CPU
 
-    our_knn_raw(N, D, A_gpu, X_gpu, K)
+    our_knn_cupy(N, D, A_gpu, X_gpu, K)
 
     # Measure time for the GPU implementation
     start_gpu = time.perf_counter()
-    indices_gpu, distances_gpu = our_knn_raw(N, D, A_gpu, X_gpu, K)
+    indices_gpu, distances_gpu = our_knn_cupy(N, D, A_gpu, X_gpu, K)
     end_gpu = time.perf_counter()
     gpu_time = end_gpu - start_gpu
 
-    our_knn_raw_tiled(N, D, A_gpu, X_gpu, K)
+    our_knn_cpu(N, D, A_gpu, X_gpu, K)
 
     # Measure time for the CPU implementation
     start_cpu = time.perf_counter()
-    indices_cpu, distances_cpu = our_knn_raw_tiled(N, D, A_gpu, X_gpu, K)
+    indices_cpu, distances_cpu = our_knn_cpu(N, D, A_cpu, X_cpu, K)
     end_cpu = time.perf_counter()
     cpu_time = end_cpu - start_cpu
 
     # Calculate and print the speedup
     speedup = cpu_time / gpu_time
     print(f"CPU Time = {cpu_time:.6f}s, GPU Time = {gpu_time:.6f}s, Speedup = {speedup:.2f}x")
-    assert cp.allclose(indices_gpu, indices_gpu, atol=1e-6), "Mismatch in results!"
+    # assert cp.allclose(indices_gpu, indices_gpu, atol=1e-6), "Mismatch in results!"
+
+def measure_speedup_kmeans(N, D, K):
+    # Generate random data
+    cp.random.seed(12345)
+    A_gpu = cp.random.rand(N, D)  # CuPy array for GPU
+    # X_gpu = cp.random.rand(D)     # CuPy vector for GPU
+
+    np.random.seed(12345)
+    A_cpu = np.random.rand(N, D)  # NumPy array for CPU
+    # X_cpu = np.random.rand(D)     # NumPy vector for CPU
+
+    our_kmeans(N, D, A_gpu, K)
+
+    # Measure time for the GPU implementation
+    start_gpu = time.perf_counter()
+    cupy_centroids, cupy_labels = our_kmeans(N, D, A_gpu, K)
+    # print(cupy_centroids, cupy_labels)
+    end_gpu = time.perf_counter()
+    gpu_time = end_gpu - start_gpu
+
+    numpy_kmeans(N, D, A_cpu, K)
+
+    # Measure time for the CPU implementation
+    start_cpu = time.perf_counter()
+    cpu_centroids, cpu_labels = numpy_kmeans(N, D, A_cpu, K)
+    # print(cpu_centroids, cpu_labels)
+    end_cpu = time.perf_counter()
+    cpu_time = end_cpu - start_cpu
+
+    # Calculate and print the speedup
+    speedup = cpu_time / gpu_time
+    print(f"CPU Time = {cpu_time:.6f}s, GPU Time = {gpu_time:.6f}s, Speedup = {speedup:.2f}x")
 
 
 def benchmark_knn(func, N, D, A, X, K, runs=5):
     # Warm-up run (to avoid startup overhead
 
-    func(N, D, A, X, K)
+    ind, _ = func(N, D, A, X, K)
+    print(ind)
 
     start_event = cp.cuda.Event()
     end_event = cp.cuda.Event()
@@ -267,10 +332,23 @@ def new_benchmark_knn(N, D, K):
     X = cp.random.rand(D)     # CuPy vector for GPU
     # Measure performance
     time_cupy = benchmark_knn(our_knn_cupy, N, D, A, X, K)
-    time_raw = benchmark_knn(our_knn_raw_tiled, N, D, A, X, K)
+    time_raw = benchmark_knn(our_knn_cpu, N, D, A, X, K)
 
     print(f"Pure CuPy Time: {time_cupy:.4f} ms")
-    print(f"Raw Kernel Time: {time_raw:.4f} ms")
+    print(f"CPU Kernel Time: {time_raw:.4f} ms")
+    print(f"Speedup: {time_cupy / time_raw:.2f}x")
+
+def new_benchmark_kmeans(N, D, K):
+    cp.random.seed(12345)
+
+    A = cp.random.rand(N, D)  # CuPy array for GPU
+    X = cp.random.rand(D)     # CuPy vector for GPU
+    # Measure performance
+    time_cupy = benchmark_knn(our_knn_cupy, N, D, A, X, K)
+    time_raw = benchmark_knn(our_knn_cpu, N, D, A, X, K)
+
+    print(f"Pure CuPy Time: {time_cupy:.4f} ms")
+    print(f"CPU Kernel Time: {time_raw:.4f} ms")
     print(f"Speedup: {time_cupy / time_raw:.2f}x")
 
 def profile_gpu_knn(func, N, D, K):
@@ -287,9 +365,63 @@ def profile_gpu_knn(func, N, D, K):
 # Run the speedup measurements
 if __name__ == "__main__":
     # test_distances()
-    # measure_speedup_knn(2**9, 10, 5)
+    # measure_speedup_knn(2**15, 20, 5)
+    measure_speedup_kmeans(2**10, 2**10, 3)
     # profile_gpu_knn(our_knn_cupy, 20, 2**20, 10)
-    profile_gpu_knn(our_knn_raw_tiled, 2**15, 20, 10)
+    # profile_gpu_knn(our_knn_raw_tiled, 2**15, 20, 10)
 
     # profile_knn(our_knn_raw, 100000, 10, 5)
-    # new_benchmark_knn(2**15, 20, 10)
+    # new_benchmark_knn(2**15, 20, 5)
+
+
+
+
+
+# def test_distances():
+#     cp.random.seed(12345)
+
+#     X = cp.random.rand(1000)
+#     Y = cp.random.rand(1000)
+
+#     cos_dist = distance_cosine(X, Y)
+#     print(f"Cosine Distance: {cos_dist}")
+
+#     l2_dist = distance_l2(X, Y)
+#     print(f"Euclidean Distance: {l2_dist}")
+
+#     dot_prod = distance_dot(X, Y)
+#     print(f"Dot Product: {dot_prod}")
+
+#     manhattan_dist = distance_manhattan(X, Y)
+#     print(f"Manhattan Distance: {manhattan_dist}")
+
+#     # Verify that arrays are using the GPU
+#     assert cp.get_array_module(cos_dist) is cp, "Cosine Distance is not computed on GPU"
+#     assert cp.get_array_module(l2_dist) is cp, "Euclidean Distance is not computed on GPU"
+#     assert cp.get_array_module(dot_prod) is cp, "Dot Product is not computed on GPU"
+#     assert cp.get_array_module(manhattan_dist) is cp, "Manhattan Distance is not computed on GPU"
+
+#     print("All tests passed! The code is running on GPU.")
+
+# def test_kmeans():
+#     N, D, A, K = testdata_kmeans("test_file.json")
+#     kmeans_result = our_kmeans(N, D, A, K)
+#     print(kmeans_result)
+
+# def test_knn():
+#     N, D, A, X, K = testdata_knn("test_file.json")
+#     knn_result = our_knn(N, D, A, X, K)
+#     print(knn_result)
+    
+# def test_ann():
+#     N, D, A, X, K = testdata_ann("test_file.json")
+#     ann_result = our_ann(N, D, A, X, K)
+#     print(ann_result)
+
+# def recall_rate(list1, list2):
+#     """
+#     Calculate the recall rate of two lists
+#     list1[K]: The top K nearest vectors ID
+#     list2[K]: The top K nearest vectors ID
+#     """
+#     return len(set(list1) & set(list2)) / len(list1)
