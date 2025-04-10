@@ -10,6 +10,7 @@ import time
 from typing import List, Dict
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+import os
 
 app = FastAPI()
 
@@ -33,27 +34,60 @@ documents = [
     "Hummingbirds can hover in mid-air by rapidly flapping their wings."
 ]
 
-# Set up devices
-llm_device = "mps" if torch.backends.mps.is_available() else "cpu"
-# Keep embedding model on CPU due to MPS limitations with some operations
-embed_device = "cpu"
+# Set up devices - Prioritize CUDA for cluster GPUs
+print("Checking available devices:")
+print(f"CUDA available: {torch.cuda.is_available()}")
+if torch.cuda.is_available():
+    print(f"CUDA device count: {torch.cuda.device_count()}")
+    print(f"CUDA current device: {torch.cuda.current_device()}")
+    print(f"CUDA device name: {torch.cuda.get_device_name(0)}")
+    llm_device = "cuda:0"
+    embed_device = "cuda:0"  # Try to use GPU for embeddings too on cluster
+elif torch.backends.mps.is_available():
+    print("MPS (Metal Performance Shaders) is available")
+    llm_device = "mps"
+    embed_device = "cpu"  # Keep embedding model on CPU due to MPS limitations
+else:
+    print("No GPU detected, using CPU")
+    llm_device = "cpu"
+    embed_device = "cpu"
+
 print(f"Using devices - LLM: {llm_device}, Embedding: {embed_device}")
 
-# 1. Load embedding model
-EMBED_MODEL_NAME = "intfloat/multilingual-e5-large-instruct"
-embed_tokenizer = AutoTokenizer.from_pretrained(EMBED_MODEL_NAME)
-embed_model = AutoModel.from_pretrained(EMBED_MODEL_NAME).to(embed_device)
+try:
+    # 1. Load embedding model
+    print("Loading embedding model...")
+    EMBED_MODEL_NAME = "intfloat/multilingual-e5-large-instruct"
+    embed_tokenizer = AutoTokenizer.from_pretrained(EMBED_MODEL_NAME)
+    embed_model = AutoModel.from_pretrained(EMBED_MODEL_NAME).to(embed_device)
+    print("Embedding model loaded successfully")
 
-# Basic Chat LLM
-chat_pipeline = pipeline("text-generation", model="Qwen/Qwen2.5-1.5B-Instruct", device=llm_device)
-# Note: try this 1.5B model if you got enough GPU memory
-# chat_pipeline = pipeline("text-generation", model="Qwen/Qwen2.5-1.5B-Instruct")
+    # Basic Chat LLM
+    print("Loading LLM model...")
+    chat_pipeline = pipeline(
+        "text-generation", 
+        model="Qwen/Qwen2.5-1.5B-Instruct", 
+        device=llm_device,
+        torch_dtype=torch.float16 if "cuda" in llm_device else torch.float32  # Use fp16 on GPU for memory efficiency
+    )
+    print("LLM model loaded successfully")
+except Exception as e:
+    print(f"Error loading models: {e}")
+    # Fall back to CPU if GPU loading fails
+    print("Falling back to CPU for all models")
+    llm_device = "cpu"
+    embed_device = "cpu"
+    
+    # Retry loading on CPU
+    embed_tokenizer = AutoTokenizer.from_pretrained(EMBED_MODEL_NAME)
+    embed_model = AutoModel.from_pretrained(EMBED_MODEL_NAME).to(embed_device)
+    chat_pipeline = pipeline("text-generation", model="Qwen/Qwen2.5-1.5B-Instruct")
 
 def get_embedding(text: str) -> np.ndarray:
     """Compute a simple average-pool embedding."""
     try:
         inputs = embed_tokenizer(text, return_tensors="pt", truncation=True)
-        # Move inputs to CPU
+        # Move inputs to correct device
         inputs = {k: v.to(embed_device) for k, v in inputs.items()}
         with torch.no_grad():
             outputs = embed_model(**inputs)
@@ -64,7 +98,9 @@ def get_embedding(text: str) -> np.ndarray:
         return np.zeros((1, embed_model.config.hidden_size))
 
 # Precompute document embeddings
+print("Precomputing document embeddings...")
 doc_embeddings = np.vstack([get_embedding(doc) for doc in documents])
+print("Document embeddings completed")
 
 def retrieve_top_k(query_emb: np.ndarray, k: int = 2) -> list:
     """Retrieve top-k docs via dot-product similarity."""
