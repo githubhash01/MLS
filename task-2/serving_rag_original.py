@@ -15,9 +15,9 @@ documents = [
 ]
 
 # Set up devices
-llm_device = "mps" if torch.backends.mps.is_available() else "cpu"
-# Keep embedding model on CPU due to MPS limitations with some operations
-embed_device = "cpu"
+llm_device = "cuda" if torch.cuda.is_available() else "cpu"
+# Keep embedding model on CPU due to limitations with some operations
+embed_device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Using devices - LLM: {llm_device}, Embedding: {embed_device}")
 
 # 1. Load embedding model
@@ -138,4 +138,9 @@ async def predict(payload: QueryRequest):
         }
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8001) 
+    print("Starting RAG server...")
+    print(f"GPU available: {torch.cuda.is_available()}")
+    if torch.cuda.is_available():
+        print(f"GPU device: {torch.cuda.get_device_name(0)}")
+    print(f"Using devices - LLM: {llm_device}, Embedding: {embed_device}")
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info") 
