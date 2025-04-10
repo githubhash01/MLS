@@ -1,4 +1,5 @@
+fastapi
+transformers
 torch
-torchvision
-torchaudio
-scikit-learn
+numpy
+uvicorn

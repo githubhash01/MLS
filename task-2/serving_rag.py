@@ -64,12 +64,14 @@ try:
 
     # Basic Chat LLM
     print("Loading LLM model...")
-    chat_pipeline = pipeline(
-        "text-generation", 
-        model="Qwen/Qwen2.5-1.5B-Instruct", 
-        device=llm_device,
-        torch_dtype=torch.float16 if "cuda" in llm_device else torch.float32  # Use fp16 on GPU for memory efficiency
-    )
+    # chat_pipeline = pipeline(
+    #     "text-generation", 
+    #     model="Qwen/Qwen2.5-1.5B-Instruct", 
+    #     device=llm_device,
+    #     torch_dtype=torch.float16 if "cuda" in llm_device else torch.float32  # Use fp16 on GPU for memory efficiency
+    # )
+
+    chat_pipeline = pipeline("text-generation", model="facebook/opt-125m", device=llm_device)
     print("LLM model loaded successfully")
 except Exception as e:
     print(f"Error loading models: {e}")
@@ -125,6 +127,7 @@ def rag_pipeline(query: str, k: int = 2) -> str:
         
         # Filter out low-similarity documents (threshold can be adjusted)
         relevant_docs = [doc for doc, score in retrieved_docs_with_scores if score > 0.1]
+        print(relevant_docs)
         
         if not relevant_docs:
             return "I don't have enough relevant information to answer this question accurately."
@@ -141,7 +144,8 @@ def rag_pipeline(query: str, k: int = 2) -> str:
         # Step 3: LLM Output
         response = chat_pipeline(
             prompt, 
-            max_new_tokens=30,
+            max_length=50,
+            # max_new_tokens=100,
             do_sample=True,
             temperature=0.1,
             num_return_sequences=1,
@@ -150,12 +154,15 @@ def rag_pipeline(query: str, k: int = 2) -> str:
             eos_token_id=chat_pipeline.tokenizer.eos_token_id,
             return_full_text=False
         )[0]["generated_text"]
-        
+        # response = chat_pipeline(prompt, max_length=200, do_sample=True)[0]["generated_text"]
+        print(f"\n RESPONSE: {response} \n")
         # Clean up the response
         if "Assistant:" in response:
             answer = response.split("Assistant:")[-1]
         else:
             answer = response
+
+        print(f"ANSWER: {answer}")
             
         # Clean up the answer
         answer = answer.strip()

@@ -1,0 +1,85 @@
+{
+  "total_time": 0.5211436748504639,
+  "results": [
+    {
+      "query": "Which animals can hover in the air?",
+      "status": 200,
+      "response": {
+        "query": "Which animals can hover in the air?",
+        "result": "apping.",
+        "status": "complete"
+      },
+      "time": 0.3112790584564209
+    },
+    {
+      "query": "Tell me about cats",
+      "status": 200,
+      "response": {
+        "query": "Tell me about cats",
+        "result": ".",
+        "status": "complete"
+      },
+      "time": 0.31127309799194336
+    },
+    {
+      "query": "What are domestic pets?",
+      "status": 200,
+      "response": {
+        "query": "What are domestic pets?",
+        "result": ".",
+        "status": "complete"
+      },
+      "time": 0.30783724784851074
+    },
+    {
+      "query": "Can birds fly?",
+      "status": 200,
+      "response": {
+        "query": "Can birds fly?",
+        "result": "humans.",
+        "status": "complete"
+      },
+      "time": 0.41254091262817383
+    },
+    {
+      "query": "What do dogs do?",
+      "status": 200,
+      "response": {
+        "query": "What do dogs do?",
+        "result": ".",
+        "status": "complete"
+      },
+      "time": 0.4141988754272461
+    },
+    {
+      "query": "Tell me about mammals",
+      "status": 200,
+      "response": {
+        "query": "Tell me about mammals",
+        "result": ".",
+        "status": "complete"
+      },
+      "time": 0.4090127944946289
+    },
+    {
+      "query": "How do animals move?",
+      "status": 200,
+      "response": {
+        "query": "How do animals move?",
+        "result": ".",
+        "status": "complete"
+      },
+      "time": 0.4074864387512207
+    },
+    {
+      "query": "How do hummingbirds move?",
+      "status": 200,
+      "response": {
+        "query": "How do hummingbirds move?",
+        "result": "humans.",
+        "status": "complete"
+      },
+      "time": 0.5157055854797363
+    }
+  ]
+}
