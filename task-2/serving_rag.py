@@ -51,51 +51,16 @@ documents = [
     "Hummingbirds can hover in mid-air by rapidly flapping their wings."
 ]
 
-# Set up devices - Prioritize CUDA for cluster GPUs
-print("Checking available devices:")
-print(f"CUDA available: {torch.cuda.is_available()}")
-if torch.cuda.is_available():
-    print(f"CUDA device count: {torch.cuda.device_count()}")
-    print(f"CUDA current device: {torch.cuda.current_device()}")
-    print(f"CUDA device name: {torch.cuda.get_device_name(0)}")
-    llm_device = "cuda:0"
-    embed_device = "cuda:0"  # Try to use GPU for embeddings too on cluster
-elif torch.backends.mps.is_available():
-    print("MPS (Metal Performance Shaders) is available")
-    llm_device = "mps"
-    embed_device = "cpu"  # Keep embedding model on CPU due to MPS limitations
-else:
-    print("No GPU detected, using CPU")
-    llm_device = "cpu"
-    embed_device = "cpu"
 
-print(f"Using devices - LLM: {llm_device}, Embedding: {embed_device}")
+llm_device="cuda:0"
+embed_device="cuda:0"
 
-try:
-    # 1. Load embedding model
-    print("Loading embedding model...")
-    EMBED_MODEL_NAME = "intfloat/multilingual-e5-large-instruct"
-    embed_tokenizer = AutoTokenizer.from_pretrained(EMBED_MODEL_NAME)
-    embed_model = AutoModel.from_pretrained(EMBED_MODEL_NAME).to(embed_device)
-    print("Embedding model loaded successfully")
+EMBED_MODEL_NAME = "intfloat/multilingual-e5-large-instruct"
+embed_tokenizer = AutoTokenizer.from_pretrained(EMBED_MODEL_NAME)
+embed_model = AutoModel.from_pretrained(EMBED_MODEL_NAME).to(embed_device)
 
-    # Basic Chat LLM
-    print("Loading LLM model...")
+chat_pipeline = pipeline("text-generation", model="facebook/opt-125m", device=llm_device)
 
-    chat_pipeline = pipeline("text-generation", model="facebook/opt-125m", device=llm_device)
-    print("LLM model loaded successfully")
-except Exception as e:
-    print(f"Error loading models: {e}")
-    # Fall back to CPU if GPU loading fails
-    print("Falling back to CPU for all models")
-    llm_device = "cpu"
-    embed_device = "cpu"
-    
-    # Retry loading on CPU
-    embed_tokenizer = AutoTokenizer.from_pretrained(EMBED_MODEL_NAME)
-    embed_model = AutoModel.from_pretrained(EMBED_MODEL_NAME).to(embed_device)
-    chat_pipeline = pipeline("text-generation", model="Qwen/Qwen2.5-1.5B-Instruct")
-    
 def get_embedding(text: str) -> cp.ndarray:
     """Compute a simple average-pool embedding and return a CuPy array."""
     try:
@@ -126,12 +91,6 @@ print("Processed K-Means")
 def retrieve_top_k(query_emb: np.ndarray, k: int = 2) -> list:
     """Retrieve top-k docs via dot-product similarity."""
     try:
-        # sims = doc_embeddings @ query_emb.T
-        # sims = sims.ravel()  # Flatten the array properly
-        # top_k_indices = np.argsort(sims)[::-1][:k]
-        # # Fix numpy deprecation warning by accessing individual elements properly
-        # return [(documents[int(i)], float(sims[int(i)])) for i in top_k_indices]
-
         approx_indices, _ = our_ann(A.shape[0], A.shape[1], A, query_emb, k, centroids, labels, distance_cosine_gpu, distance_cosine_kmeans, num_clusters)
         print(approx_indices)
         print(type(approx_indices))
@@ -143,87 +102,16 @@ def retrieve_top_k(query_emb: np.ndarray, k: int = 2) -> list:
         return [(documents[0], 0.2)]
 
 def rag_pipeline(query: str, k: int = 2) -> str:
-    try:
-        # Step 1: Input embedding
-        query_emb = get_embedding(query)
+    query_emb = get_embedding(query)
+    
+    retrieved_docs = retrieve_top_k(query_emb, k)
+    
+    context = "\n".join(retrieved_docs)
+    prompt = f"Question: {query}\nContext:\n{context}\nAnswer:"
         
-        # Step 2: Retrieval with similarity scores
-        retrieved_docs_with_scores = retrieve_top_k(query_emb, k)
-        
-        # Filter out low-similarity documents (threshold can be adjusted)
-        # relevant_docs = [doc for doc, score in retrieved_docs_with_scores if score > 0.1]
-        relevant_docs = [doc for doc in retrieved_docs_with_scores]
-        print(relevant_docs)
-        
-        if not relevant_docs:
-            return "I don't have enough relevant information to answer this question accurately."
-        
-        # Construct the prompt from query + retrieved docs
-        context = "\n".join(f"- {doc}" for doc in relevant_docs)
-        prompt = (
-            "System: You are a direct and concise assistant. Provide only short, factual answers.\n\n"
-            f"Context:\n{context}\n\n"
-            f"Human: {query}\n"
-            "Assistant: Give a one-sentence answer using only the context provided."
-        )
-        
-        # Step 3: LLM Output
-        # response = chat_pipeline(
-        #     prompt, 
-        #     max_length=100,
-        #     # max_new_tokens=100,
-        #     do_sample=True,
-        #     temperature=0.1,
-        #     num_return_sequences=1,
-        #     truncation=True,
-        #     pad_token_id=chat_pipeline.tokenizer.eos_token_id,
-        #     eos_token_id=chat_pipeline.tokenizer.eos_token_id,
-        #     return_full_text=False
-        # )[0]["generated_text"]
-        response = chat_pipeline(prompt, max_length=200, do_sample=True)[0]["generated_text"]
-        print(f"\n RESPONSE: {response} \n")
-        # Clean up the response
-        if "Assistant:" in response:
-            answer = response.split("Assistant:")[-1]
-        else:
-            answer = response
-
-        print(f"ANSWER: {answer}")
-            
-        # Clean up the answer
-        answer = answer.strip()
-        answer = answer.split("\n")[0]  # Take only the first line
-        
-        # Make sure we have a complete sentence
-        if answer and not any(answer.endswith(p) for p in ['.', '!', '?']):
-            answer = answer.split(".")[0] + "."
-        
-        # Remove any meta-text patterns
-        patterns_to_remove = [
-            "Based on the context,",
-            "According to the context,",
-            "The context states that",
-            "Therefore,",
-            "To answer your question,",
-            "I can tell you that",
-            "The answer is"
-        ]
-        
-        for pattern in patterns_to_remove:
-            answer = answer.replace(pattern, "").strip()
-        
-        # Provide a fallback if answer is empty
-        if not answer:
-            # Use the most relevant document from the retrieved context
-            if relevant_docs:
-                return relevant_docs[0]
-            else:
-                return "Hummingbirds can hover in mid-air by rapidly flapping their wings."
-        
-        return answer
-    except Exception as e:
-        print(f"RAG pipeline error: {str(e)}")
-        return f"Error processing your request: {type(e).__name__}"
+    generated = chat_pipeline(prompt, max_length=100, do_sample=True)[0]["generated_text"]
+    print(f"\nGENERATED: {generated}\n")
+    return generated
 
 def process_single_request(req: Dict) -> Dict:
     """Process a single request and return the result."""
