@@ -12,7 +12,7 @@ from typing import List, Dict
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import os
-from task import our_kmeans, our_ann, our_knn_cupy
+from task_1_code import our_kmeans, our_ann, our_knn_cupy
 
 from distance_functions import (
         distance_l2_gpu, 
@@ -62,7 +62,7 @@ embed_model = AutoModel.from_pretrained(EMBED_MODEL_NAME).to(embed_device)
 chat_pipeline = pipeline("text-generation", model="facebook/opt-125m", device=llm_device)
 
 def get_embedding(text: str) -> cp.ndarray:
-    """Compute a simple average-pool embedding and return a CuPy array."""
+    """Get embeddings for documents and return a CuPy array (on GPU)"""
     try:
         inputs = embed_tokenizer(text, return_tensors="pt", truncation=True)
         # Move inputs to correct device
@@ -84,12 +84,12 @@ print("Document embeddings completed")
 A = doc_embeddings
 num_clusters = 1
 
+# precompute kmeans for document set
 centroids, labels = our_kmeans(A.shape[0], A.shape[1], A, num_clusters, distance_fn=distance_cosine_gpu, centroid_distance_fn=distance_cosine_kmeans)
 print("Processed K-Means")
 
-
+# Retrieve top K documents from document set (using ANN)
 def retrieve_top_k(query_emb: np.ndarray, k: int = 2) -> list:
-    """Retrieve top-k docs via dot-product similarity."""
     try:
         approx_indices, _ = our_ann(A.shape[0], A.shape[1], A, query_emb, k, centroids, labels, distance_cosine_gpu, distance_cosine_kmeans, num_clusters)
         print(approx_indices)
@@ -109,9 +109,9 @@ def rag_pipeline(query: str, k: int = 2) -> str:
     context = "\n".join(retrieved_docs)
     prompt = f"Question: {query}\nContext:\n{context}\nAnswer:"
         
-    generated = chat_pipeline(prompt, max_length=100, do_sample=True)[0]["generated_text"]
-    print(f"\nGENERATED: {generated}\n")
-    return generated
+    answer = chat_pipeline(prompt, max_length=100, do_sample=True)[0]["generated_text"]
+    print(f"\nGENERATED: {answer}\n")
+    return answer
 
 def process_single_request(req: Dict) -> Dict:
     """Process a single request and return the result."""

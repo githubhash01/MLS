@@ -1,85 +1,85 @@
 {
-  "total_time": 0.5211436748504639,
+  "total_time": 2.5307528972625732,
   "results": [
     {
       "query": "Which animals can hover in the air?",
       "status": 200,
       "response": {
         "query": "Which animals can hover in the air?",
-        "result": "apping.",
+        "result": "Question: Which animals can hover in the air?\nContext:\nHummingbirds can hover in mid-air by rapidly flapping their wings.\nDogs are domesticated mammals, not natural wild animals.\nAnswer:\nMice, dogs, and rats.\n\nI was making a fun meme. The one in the \"first meme\" has the correct version of \"The first meme of this series\"\nBut I added a joke about how the dogs can fly through space",
         "status": "complete"
       },
-      "time": 0.3112790584564209
-    },
-    {
-      "query": "Tell me about cats",
-      "status": 200,
-      "response": {
-        "query": "Tell me about cats",
-        "result": ".",
-        "status": "complete"
-      },
-      "time": 0.31127309799194336
-    },
-    {
-      "query": "What are domestic pets?",
-      "status": 200,
-      "response": {
-        "query": "What are domestic pets?",
-        "result": ".",
-        "status": "complete"
-      },
-      "time": 0.30783724784851074
-    },
-    {
-      "query": "Can birds fly?",
-      "status": 200,
-      "response": {
-        "query": "Can birds fly?",
-        "result": "humans.",
-        "status": "complete"
-      },
-      "time": 0.41254091262817383
+      "time": 0.4102036952972412
     },
     {
       "query": "What do dogs do?",
       "status": 200,
       "response": {
         "query": "What do dogs do?",
-        "result": ".",
+        "result": "Question: What do dogs do?\nContext:\nDogs are domesticated mammals, not natural wild animals.\nCats are small furry carnivores that are often kept as pets.\nAnswer: Humans control both birds and humans by taking them up to the skies and then releasing them on the ground.\n\n\"There is no natural predators; predators are natural predators who can eat a dog.\"\n\n No, there's actual human-human relationships:\n* Human lives are the same",
         "status": "complete"
       },
-      "time": 0.4141988754272461
+      "time": 1.0132014751434326
     },
     {
-      "query": "Tell me about mammals",
+      "query": "Tell me about cats",
       "status": 200,
       "response": {
-        "query": "Tell me about mammals",
-        "result": ".",
+        "query": "Tell me about cats",
+        "result": "Question: Tell me about cats\nContext:\nCats are small furry carnivores that are often kept as pets.\nDogs are domesticated mammals, not natural wild animals.\nAnswer:\nCats are small carnivores that are often kept as pets.\nThe question: Tell me about cats?",
         "status": "complete"
       },
-      "time": 0.4090127944946289
+      "time": 1.0156049728393555
     },
     {
-      "query": "How do animals move?",
+      "query": "Can birds fly?",
       "status": 200,
       "response": {
-        "query": "How do animals move?",
-        "result": ".",
+        "query": "Can birds fly?",
+        "result": "Question: Can birds fly?\nContext:\nHummingbirds can hover in mid-air by rapidly flapping their wings.\nDogs are domesticated mammals, not natural wild animals.\nAnswer:\nThere may be no actual common sense explanation to the above question.\n\nQuestion: Can you fly in a closed water?\nDogs, in this situation, can\u2019t actually fly. Why?\nAnswer:\nBecause they can\u2019t physically fly where water",
         "status": "complete"
       },
-      "time": 0.4074864387512207
+      "time": 1.6175172328948975
     },
     {
       "query": "How do hummingbirds move?",
       "status": 200,
       "response": {
         "query": "How do hummingbirds move?",
-        "result": "humans.",
+        "result": "Question: How do hummingbirds move?\nContext:\nHummingbirds can hover in mid-air by rapidly flapping their wings.\nDogs are domesticated mammals, not natural wild animals.\nAnswer:\nThere are two basic types (Hubs, and Dogs).\nHubs (or \"flying birds\") are birds that do so in order to acquire intelligence with flying hands.\nThe flying birds are often \"flying\" from a very narrow angle through an angle like",
         "status": "complete"
       },
-      "time": 0.5157055854797363
+      "time": 1.6170132160186768
+    },
+    {
+      "query": "What are domestic pets?",
+      "status": 200,
+      "response": {
+        "query": "What are domestic pets?",
+        "result": "Question: What are domestic pets?\nContext:\nDogs are domesticated mammals, not natural wild animals.\nCats are small furry carnivores that are often kept as pets.\nAnswer: Animals in shelters for domestic pets\nThe answer is domestic.",
+        "status": "complete"
+      },
+      "time": 1.8173890113830566
+    },
+    {
+      "query": "How do animals move?",
+      "status": 200,
+      "response": {
+        "query": "How do animals move?",
+        "result": "Question: How do animals move?\nContext:\nDogs are domesticated mammals, not natural wild animals.\nCats are small furry carnivores that are often kept as pets.\nAnswer:\n\nI would be surprised if those who are considered domesticated have any problems with it. It is not common for cats to go bare footed in the wild.\n\nAnswer:\nMany feral cats will not eat food or leave litter because they don't have a place to live",
+        "status": "complete"
+      },
+      "time": 2.11859130859375
+    },
+    {
+      "query": "Tell me about mammals",
+      "status": 200,
+      "response": {
+        "query": "Tell me about mammals",
+        "result": "Question: Tell me about mammals\nContext:\nDogs are domesticated mammals, not natural wild animals.\nCats are small furry carnivores that are often kept as pets.\nAnswer: Humans\n\nIt's great that you were given the opportunity to make a joke about a mammal because you have now realized that it's not true.\nThere is actually something about cats' behavior that I don't understand. I don't want to get into the context that's relevant, but",
+        "status": "complete"
+      },
+      "time": 2.5235671997070312
     }
   ]
 }
