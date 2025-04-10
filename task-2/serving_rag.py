@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import cupy as cp
 from transformers import AutoTokenizer, AutoModel, pipeline
 from fastapi import FastAPI
 import uvicorn
@@ -11,6 +12,22 @@ from typing import List, Dict
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import os
+from task import our_kmeans, our_ann, our_knn_cupy
+
+from distance_functions import (
+        distance_l2_gpu, 
+        distance_cosine_gpu,
+        distance_dot_gpu,
+        distance_manhattan_gpu,
+        distance_l2_cpu, 
+        distance_cosine_cpu,
+        distance_dot_cpu,
+        distance_manhattan_cpu,
+        distance_l2_kmeans,
+        distance_cosine_kmeans,
+        distance_manhattan_kmeans,
+        distance_dot_kmeans
+    )
 
 app = FastAPI()
 
@@ -64,12 +81,6 @@ try:
 
     # Basic Chat LLM
     print("Loading LLM model...")
-    # chat_pipeline = pipeline(
-    #     "text-generation", 
-    #     model="Qwen/Qwen2.5-1.5B-Instruct", 
-    #     device=llm_device,
-    #     torch_dtype=torch.float16 if "cuda" in llm_device else torch.float32  # Use fp16 on GPU for memory efficiency
-    # )
 
     chat_pipeline = pipeline("text-generation", model="facebook/opt-125m", device=llm_device)
     print("LLM model loaded successfully")
@@ -84,34 +95,48 @@ except Exception as e:
     embed_tokenizer = AutoTokenizer.from_pretrained(EMBED_MODEL_NAME)
     embed_model = AutoModel.from_pretrained(EMBED_MODEL_NAME).to(embed_device)
     chat_pipeline = pipeline("text-generation", model="Qwen/Qwen2.5-1.5B-Instruct")
-
-def get_embedding(text: str) -> np.ndarray:
-    """Compute a simple average-pool embedding."""
+    
+def get_embedding(text: str) -> cp.ndarray:
+    """Compute a simple average-pool embedding and return a CuPy array."""
     try:
         inputs = embed_tokenizer(text, return_tensors="pt", truncation=True)
         # Move inputs to correct device
         inputs = {k: v.to(embed_device) for k, v in inputs.items()}
         with torch.no_grad():
             outputs = embed_model(**inputs)
-        return outputs.last_hidden_state.mean(dim=1).cpu().numpy()
+        np_embedding = outputs.last_hidden_state.mean(dim=1).cpu().numpy()
+        return cp.asarray(np_embedding)
     except Exception as e:
         print(f"Embedding error: {e}")
         # Return a zero embedding as fallback
-        return np.zeros((1, embed_model.config.hidden_size))
+        return cp.zeros((1, embed_model.config.hidden_size))
 
 # Precompute document embeddings
 print("Precomputing document embeddings...")
-doc_embeddings = np.vstack([get_embedding(doc) for doc in documents])
+doc_embeddings = cp.vstack([get_embedding(doc) for doc in documents])
 print("Document embeddings completed")
+
+A = doc_embeddings
+num_clusters = 1
+
+centroids, labels = our_kmeans(A.shape[0], A.shape[1], A, num_clusters, distance_fn=distance_cosine_gpu, centroid_distance_fn=distance_cosine_kmeans)
+print("Processed K-Means")
+
 
 def retrieve_top_k(query_emb: np.ndarray, k: int = 2) -> list:
     """Retrieve top-k docs via dot-product similarity."""
     try:
-        sims = doc_embeddings @ query_emb.T
-        sims = sims.ravel()  # Flatten the array properly
-        top_k_indices = np.argsort(sims)[::-1][:k]
-        # Fix numpy deprecation warning by accessing individual elements properly
-        return [(documents[int(i)], float(sims[int(i)])) for i in top_k_indices]
+        # sims = doc_embeddings @ query_emb.T
+        # sims = sims.ravel()  # Flatten the array properly
+        # top_k_indices = np.argsort(sims)[::-1][:k]
+        # # Fix numpy deprecation warning by accessing individual elements properly
+        # return [(documents[int(i)], float(sims[int(i)])) for i in top_k_indices]
+
+        approx_indices, _ = our_ann(A.shape[0], A.shape[1], A, query_emb, k, centroids, labels, distance_cosine_gpu, distance_cosine_kmeans, num_clusters)
+        print(approx_indices)
+        print(type(approx_indices))
+        print(f"\nGOT DOCUMENTS: {[documents[int(i)] for i in approx_indices]}\n")
+        return [documents[int(i)] for i in approx_indices]
     except Exception as e:
         print(f"Retrieval error: {e}")
         # Return first document as fallback with low similarity
@@ -126,7 +151,8 @@ def rag_pipeline(query: str, k: int = 2) -> str:
         retrieved_docs_with_scores = retrieve_top_k(query_emb, k)
         
         # Filter out low-similarity documents (threshold can be adjusted)
-        relevant_docs = [doc for doc, score in retrieved_docs_with_scores if score > 0.1]
+        # relevant_docs = [doc for doc, score in retrieved_docs_with_scores if score > 0.1]
+        relevant_docs = [doc for doc in retrieved_docs_with_scores]
         print(relevant_docs)
         
         if not relevant_docs:
@@ -142,19 +168,19 @@ def rag_pipeline(query: str, k: int = 2) -> str:
         )
         
         # Step 3: LLM Output
-        response = chat_pipeline(
-            prompt, 
-            max_length=50,
-            # max_new_tokens=100,
-            do_sample=True,
-            temperature=0.1,
-            num_return_sequences=1,
-            truncation=True,
-            pad_token_id=chat_pipeline.tokenizer.eos_token_id,
-            eos_token_id=chat_pipeline.tokenizer.eos_token_id,
-            return_full_text=False
-        )[0]["generated_text"]
-        # response = chat_pipeline(prompt, max_length=200, do_sample=True)[0]["generated_text"]
+        # response = chat_pipeline(
+        #     prompt, 
+        #     max_length=100,
+        #     # max_new_tokens=100,
+        #     do_sample=True,
+        #     temperature=0.1,
+        #     num_return_sequences=1,
+        #     truncation=True,
+        #     pad_token_id=chat_pipeline.tokenizer.eos_token_id,
+        #     eos_token_id=chat_pipeline.tokenizer.eos_token_id,
+        #     return_full_text=False
+        # )[0]["generated_text"]
+        response = chat_pipeline(prompt, max_length=200, do_sample=True)[0]["generated_text"]
         print(f"\n RESPONSE: {response} \n")
         # Clean up the response
         if "Assistant:" in response:
