@@ -8,7 +8,7 @@ from pydantic import BaseModel
 import queue
 import threading
 import time
-from typing import List, Dict
+from typing import List, Dict, Union
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import os
@@ -32,7 +32,7 @@ from distance_functions import (
 app = FastAPI()
 
 # Configuration constants - optimized based on testing
-MAX_BATCH_SIZE = 1  # Reduced from 3 to avoid large batch delays
+MAX_BATCH_SIZE = 6  # Reduced from 3 to avoid large batch delays
 MAX_WAITING_TIME = 0.5  # Reduced from 1.5 to minimize waiting time
 REQUEST_TIMEOUT = 20  # Reduced from 30 to prevent long waits
 
@@ -59,22 +59,25 @@ EMBED_MODEL_NAME = "intfloat/multilingual-e5-large-instruct"
 embed_tokenizer = AutoTokenizer.from_pretrained(EMBED_MODEL_NAME)
 embed_model = AutoModel.from_pretrained(EMBED_MODEL_NAME).to(embed_device)
 
-chat_pipeline = pipeline("text-generation", model="facebook/opt-125m", device=llm_device)
+chat_pipeline = pipeline("text-generation", model="facebook/opt-125m", device=llm_device, batch_size=MAX_BATCH_SIZE)
 
-def get_embedding(text: str) -> cp.ndarray:
-    """Get embeddings for documents and return a CuPy array (on GPU)"""
+def get_embedding(texts: Union[str, List[str]]) -> cp.ndarray:
     try:
-        inputs = embed_tokenizer(text, return_tensors="pt", truncation=True)
-        # Move inputs to correct device
+        if isinstance(texts, str):
+            texts = [texts]
+
+        inputs = embed_tokenizer(texts, return_tensors="pt", truncation=True, padding=True)
         inputs = {k: v.to(embed_device) for k, v in inputs.items()}
+
         with torch.no_grad():
             outputs = embed_model(**inputs)
-        np_embedding = outputs.last_hidden_state.mean(dim=1).cpu().numpy()
-        return cp.asarray(np_embedding)
+        # Pooling: mean of last_hidden_state for each sequence
+        embeddings = outputs.last_hidden_state.mean(dim=1).cpu().numpy()
+        return cp.asarray(embeddings)  # shape: (batch_size, hidden_dim)
     except Exception as e:
         print(f"Embedding error: {e}")
-        # Return a zero embedding as fallback
-        return cp.zeros((1, embed_model.config.hidden_size))
+        return cp.zeros((len(texts), embed_model.config.hidden_size))
+
 
 # Precompute document embeddings
 print("Precomputing document embeddings...")
@@ -92,9 +95,7 @@ print("Processed K-Means")
 def retrieve_top_k(query_emb: np.ndarray, k: int = 2) -> list:
     try:
         approx_indices, _ = our_ann(A.shape[0], A.shape[1], A, query_emb, k, centroids, labels, distance_cosine_gpu, distance_cosine_kmeans, num_clusters)
-        print(approx_indices)
-        print(type(approx_indices))
-        print(f"\nGOT DOCUMENTS: {[documents[int(i)] for i in approx_indices]}\n")
+        # print(f"\nGOT DOCUMENTS: {[documents[int(i)] for i in approx_indices]}\n")
         return [documents[int(i)] for i in approx_indices]
     except Exception as e:
         print(f"Retrieval error: {e}")
@@ -112,7 +113,6 @@ def rag_pipeline(query: str, k: int = 2) -> str:
     context = "\n".join([f"{i+1}. {doc}" for i, doc in enumerate(retrieved_docs)])
     prompt = f"Use the context below to answer the question.\n\nContext:\n{context}\n\nQuestion: {query}\nAnswer:"
 
-        
     answer = chat_pipeline(prompt, max_length=100, do_sample=True)[0]["generated_text"]
     print(f"\nGENERATED: {answer}\n")
     return answer
@@ -135,29 +135,51 @@ def process_single_request(req: Dict) -> Dict:
             "status": "error",
             "result": f"Error processing your request: {type(e).__name__}"
         }
+    
+
+def format_rag_prompt(query: str, docs: List[str]) -> str:
+    context = "\n".join([f"Fact {i+1}: {doc}" for i, doc in enumerate(docs)])
+    return f"{context}\n\nQuestion: {query}\nAnswer:"
 
 def process_batch(requests: List[Dict]) -> None:
     """Process a batch of requests in parallel using thread pool."""
     try:
         print(f"Processing batch of {len(requests)} requests")
         start_time = time.time()
-        
-        # Submit all requests to thread pool
-        futures = [batch_thread_pool.submit(process_single_request, req) for req in requests]
-        
-        # Store results as they complete
-        for req, future in zip(requests, futures):
+
+        list_of_queries = [(r["query"], r["k"]) for r in requests]
+        query_embs = [(get_embedding(query), k) for query, k in list_of_queries]
+        retrieved_docs = [retrieve_top_k(query_emb, k) for query_emb, k in query_embs]
+
+        rag_inputs = [format_rag_prompt(q, docs) for (q, _), docs in zip(list_of_queries, retrieved_docs)]
+
+        responses = chat_pipeline(rag_inputs, max_length=50, do_sample=True)
+        for response, request in zip(responses, requests):
             try:
-                result = future.result(timeout=REQUEST_TIMEOUT-2)  # Leave 2s buffer
                 with results_lock:
-                    results_store[req['id']] = result
+                    results_store[request['id']] = response
             except Exception as e:
-                print(f"Future error for {req['id']}: {str(e)}")
                 with results_lock:
-                    results_store[req['id']] = {
+                    results_store[request['id']] = {
                         "status": "error",
                         "result": f"Error processing your request: {type(e).__name__}"
                     }
+        # # Submit all requests to thread pool
+        # futures = [batch_thread_pool.submit(process_single_request, req) for req in requests]
+        
+        # Store results as they complete
+        # for req, future in zip(requests, futures):
+        #     try:
+        #         result = future.result(timeout=REQUEST_TIMEOUT-2)  # Leave 2s buffer
+        #         with results_lock:
+        #             results_store[req['id']] = result
+        #     except Exception as e:
+        #         print(f"Future error for {req['id']}: {str(e)}")
+        #         with results_lock:
+        #             results_store[req['id']] = {
+        #                 "status": "error",
+        #                 "result": f"Error processing your request: {type(e).__name__}"
+        #             }
         
         batch_time = time.time() - start_time
         print(f"Batch processing completed in {batch_time:.2f}s")
@@ -214,7 +236,7 @@ batch_thread.start()
 # Define request model
 class QueryRequest(BaseModel):
     query: str
-    k: int = 2
+    k: int = 1
 
 @app.post("/rag")
 async def predict(payload: QueryRequest):
@@ -246,10 +268,10 @@ async def predict(payload: QueryRequest):
             with results_lock:
                 if request_id in results_store:
                     result = results_store.pop(request_id)  # Remove result after retrieval
+                    # print(result)
                     return {
                         "query": payload.query,
-                        "result": result["result"],
-                        "status": result["status"]
+                        "result": result[0]["generated_text"]
                     }
             await asyncio.sleep(0.1)
         
@@ -268,21 +290,21 @@ async def predict(payload: QueryRequest):
         }
     
 
-@app.post("/rag_unbatched")
-async def respond(payload: QueryRequest):
-    try:
-        result = rag_pipeline(payload.query, payload.k)
-        return {
-            "query": payload.query,
-            "result": result,
-            "status": "complete"
-        }
-    except Exception as e:
-        return {
-            "query": payload.query,
-            "result": str(e),
-            "status": "error"
-        }
+# @app.post("/rag")
+# async def respond(payload: QueryRequest):
+#     try:
+#         result = rag_pipeline(payload.query, payload.k)
+#         return {
+#             "query": payload.query,
+#             "result": result,
+#             "status": "complete"
+#         }
+#     except Exception as e:
+#         return {
+#             "query": payload.query,
+#             "result": str(e),
+#             "status": "error"
+#         }
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

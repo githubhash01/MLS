@@ -325,11 +325,11 @@ def our_ann(N, D, A, X, K, centroids, labels, distance_fn=distance_l2_gpu, centr
     # Find closest centroid
     centroid_distances = centroid_distance_fn(centroids, X)  # [K]
     closest_cluster = cp.argmin(centroid_distances)
-    print(centroid_distances)
+    # print(centroid_distances)
     # Select candidate points from that cluster
     cluster_indices = cp.where(labels == closest_cluster)[0]
     candidates = A[cluster_indices]
-    print(candidates)
+    # print(candidates)
 
     if candidates.shape[0] == 0:
         # Fallback to full dataset if cluster is empty

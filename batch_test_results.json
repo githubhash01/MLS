@@ -1,85 +1,293 @@
 {
-  "total_time": 2.5307528972625732,
+  "total_time": 1.9927706718444824,
   "results": [
     {
       "query": "Which animals can hover in the air?",
       "status": 200,
       "response": {
         "query": "Which animals can hover in the air?",
-        "result": "Question: Which animals can hover in the air?\nContext:\nHummingbirds can hover in mid-air by rapidly flapping their wings.\nDogs are domesticated mammals, not natural wild animals.\nAnswer:\nMice, dogs, and rats.\n\nI was making a fun meme. The one in the \"first meme\" has the correct version of \"The first meme of this series\"\nBut I added a joke about how the dogs can fly through space",
-        "status": "complete"
+        "result": "Fact 1: Hummingbirds can hover in mid-air by rapidly flapping their wings.\n\nQuestion: Which animals can hover in the air?\nAnswer: Why are humans so dumb?\n\nAnswer: Why do we need to"
       },
-      "time": 0.4102036952972412
-    },
-    {
-      "query": "What do dogs do?",
-      "status": 200,
-      "response": {
-        "query": "What do dogs do?",
-        "result": "Question: What do dogs do?\nContext:\nDogs are domesticated mammals, not natural wild animals.\nCats are small furry carnivores that are often kept as pets.\nAnswer: Humans control both birds and humans by taking them up to the skies and then releasing them on the ground.\n\n\"There is no natural predators; predators are natural predators who can eat a dog.\"\n\n No, there's actual human-human relationships:\n* Human lives are the same",
-        "status": "complete"
-      },
-      "time": 1.0132014751434326
+      "time": 0.3054790496826172
     },
     {
       "query": "Tell me about cats",
       "status": 200,
       "response": {
         "query": "Tell me about cats",
-        "result": "Question: Tell me about cats\nContext:\nCats are small furry carnivores that are often kept as pets.\nDogs are domesticated mammals, not natural wild animals.\nAnswer:\nCats are small carnivores that are often kept as pets.\nThe question: Tell me about cats?",
-        "status": "complete"
+        "result": "Fact 1: Cats are small furry carnivores that are often kept as pets.\n\nQuestion: Tell me about cats\nAnswer:on a normal day they would come off as almost the typical of other animals"
       },
-      "time": 1.0156049728393555
+      "time": 0.31888246536254883
+    },
+    {
+      "query": "What do dogs do?",
+      "status": 200,
+      "response": {
+        "query": "What do dogs do?",
+        "result": "Fact 1: Dogs are domesticated mammals, not natural wild animals.\n\nQuestion: What do dogs do?\nAnswer:a.\n\nDogs live. They come to life, like wild"
+      },
+      "time": 0.31846094131469727
     },
     {
       "query": "Can birds fly?",
       "status": 200,
       "response": {
         "query": "Can birds fly?",
-        "result": "Question: Can birds fly?\nContext:\nHummingbirds can hover in mid-air by rapidly flapping their wings.\nDogs are domesticated mammals, not natural wild animals.\nAnswer:\nThere may be no actual common sense explanation to the above question.\n\nQuestion: Can you fly in a closed water?\nDogs, in this situation, can\u2019t actually fly. Why?\nAnswer:\nBecause they can\u2019t physically fly where water",
-        "status": "complete"
+        "result": "Fact 1: Hummingbirds can hover in mid-air by rapidly flapping their wings.\n\nQuestion: Can birds fly?\nAnswer:\nNo, but they can hover in mid air if either the wing or"
       },
-      "time": 1.6175172328948975
+      "time": 0.31806492805480957
     },
     {
       "query": "How do hummingbirds move?",
       "status": 200,
       "response": {
         "query": "How do hummingbirds move?",
-        "result": "Question: How do hummingbirds move?\nContext:\nHummingbirds can hover in mid-air by rapidly flapping their wings.\nDogs are domesticated mammals, not natural wild animals.\nAnswer:\nThere are two basic types (Hubs, and Dogs).\nHubs (or \"flying birds\") are birds that do so in order to acquire intelligence with flying hands.\nThe flying birds are often \"flying\" from a very narrow angle through an angle like",
-        "status": "complete"
+        "result": "Fact 1: Hummingbirds can hover in mid-air by rapidly flapping their wings.\n\nQuestion: How do hummingbirds move?\nAnswer:ogues are a useful method of tracking how long their wings and necks remain"
       },
-      "time": 1.6170132160186768
+      "time": 0.31744813919067383
     },
     {
       "query": "What are domestic pets?",
       "status": 200,
       "response": {
         "query": "What are domestic pets?",
-        "result": "Question: What are domestic pets?\nContext:\nDogs are domesticated mammals, not natural wild animals.\nCats are small furry carnivores that are often kept as pets.\nAnswer: Animals in shelters for domestic pets\nThe answer is domestic.",
-        "status": "complete"
+        "result": "Fact 1: Dogs are domesticated mammals, not natural wild animals.\n\nQuestion: What are domestic pets?\nAnswer:: Dogs\n\nRelated Tags:\n\nJuly 9, 2012 8:"
       },
-      "time": 1.8173890113830566
+      "time": 0.3169999122619629
     },
     {
       "query": "How do animals move?",
       "status": 200,
       "response": {
         "query": "How do animals move?",
-        "result": "Question: How do animals move?\nContext:\nDogs are domesticated mammals, not natural wild animals.\nCats are small furry carnivores that are often kept as pets.\nAnswer:\n\nI would be surprised if those who are considered domesticated have any problems with it. It is not common for cats to go bare footed in the wild.\n\nAnswer:\nMany feral cats will not eat food or leave litter because they don't have a place to live",
-        "status": "complete"
+        "result": "Fact 1: Dogs are domesticated mammals, not natural wild animals.\n\nQuestion: How do animals move?\nAnswer: (1) There are three methods known as bipodal movement. They"
       },
-      "time": 2.11859130859375
+      "time": 0.5168261528015137
     },
     {
       "query": "Tell me about mammals",
       "status": 200,
       "response": {
         "query": "Tell me about mammals",
-        "result": "Question: Tell me about mammals\nContext:\nDogs are domesticated mammals, not natural wild animals.\nCats are small furry carnivores that are often kept as pets.\nAnswer: Humans\n\nIt's great that you were given the opportunity to make a joke about a mammal because you have now realized that it's not true.\nThere is actually something about cats' behavior that I don't understand. I don't want to get into the context that's relevant, but",
-        "status": "complete"
+        "result": "Fact 1: Dogs are domesticated mammals, not natural wild animals.\n\nQuestion: Tell me about mammals\nAnswer:oDogs is a native animal that is probably domesticated. That makes"
       },
-      "time": 2.5235671997070312
+      "time": 0.5172398090362549
+    },
+    {
+      "query": "Which animals can hover in the air?",
+      "status": 200,
+      "response": {
+        "query": "Which animals can hover in the air?",
+        "result": "Fact 1: Hummingbirds can hover in mid-air by rapidly flapping their wings.\n\nQuestion: Which animals can hover in the air?\nAnswer: The only animals which can hover.\nFact 2: Hummingbirds can"
+      },
+      "time": 0.5164816379547119
+    },
+    {
+      "query": "Tell me about cats",
+      "status": 200,
+      "response": {
+        "query": "Tell me about cats",
+        "result": "Fact 1: Cats are small furry carnivores that are often kept as pets.\n\nQuestion: Tell me about cats\nAnswer:/u/xo_cats.\n\nCats are carniv"
+      },
+      "time": 0.5159955024719238
+    },
+    {
+      "query": "What do dogs do?",
+      "status": 200,
+      "response": {
+        "query": "What do dogs do?",
+        "result": "Fact 1: Dogs are domesticated mammals, not natural wild animals.\n\nQuestion: What do dogs do?\nAnswer:. They don't breed. They live. They have to keep on going"
+      },
+      "time": 0.5064682960510254
+    },
+    {
+      "query": "Can birds fly?",
+      "status": 200,
+      "response": {
+        "query": "Can birds fly?",
+        "result": "Fact 1: Hummingbirds can hover in mid-air by rapidly flapping their wings.\n\nQuestion: Can birds fly?\nAnswer:\n\nNo, of course not, it is rather pointless, it will"
+      },
+      "time": 0.5055725574493408
+    },
+    {
+      "query": "Tell me about mammals",
+      "status": 200,
+      "response": {
+        "query": "Tell me about mammals",
+        "result": "Fact 1: Dogs are domesticated mammals, not natural wild animals.\n\nQuestion: Tell me about mammals\nAnswer: the mammals they reproduce with are domesticated animals.\n\nFact 2:"
+      },
+      "time": 0.7068042755126953
+    },
+    {
+      "query": "What are domestic pets?",
+      "status": 200,
+      "response": {
+        "query": "What are domestic pets?",
+        "result": "Fact 1: Dogs are domesticated mammals, not natural wild animals.\n\nQuestion: What are domestic pets?\nAnswer:\nAnimal pets.\nQuestion: What are natural wild animals?\nAnswer"
+      },
+      "time": 0.708082914352417
+    },
+    {
+      "query": "How do animals move?",
+      "status": 200,
+      "response": {
+        "query": "How do animals move?",
+        "result": "Fact 1: Dogs are domesticated mammals, not natural wild animals.\n\nQuestion: How do animals move?\nAnswer:on a dog"
+      },
+      "time": 0.7073471546173096
+    },
+    {
+      "query": "Which animals can hover in the air?",
+      "status": 200,
+      "response": {
+        "query": "Which animals can hover in the air?",
+        "result": "Fact 1: Hummingbirds can hover in mid-air by rapidly flapping their wings.\n\nQuestion: Which animals can hover in the air?\nAnswer: Humans are the most active and fastest growing mammal on Earth. They are the"
+      },
+      "time": 0.7070715427398682
+    },
+    {
+      "query": "Tell me about cats",
+      "status": 200,
+      "response": {
+        "query": "Tell me about cats",
+        "result": "Fact 1: Cats are small furry carnivores that are often kept as pets.\n\nQuestion: Tell me about cats\nAnswer:- cats are small to large animals that can be kept as pets. Cats"
+      },
+      "time": 0.7106952667236328
+    },
+    {
+      "query": "How do hummingbirds move?",
+      "status": 200,
+      "response": {
+        "query": "How do hummingbirds move?",
+        "result": "Fact 1: Hummingbirds can hover in mid-air by rapidly flapping their wings.\n\nQuestion: How do hummingbirds move?\nAnswer:o\n\nThis is a really cool video I saw, but the thing"
+      },
+      "time": 0.807234525680542
+    },
+    {
+      "query": "How do hummingbirds move?",
+      "status": 200,
+      "response": {
+        "query": "How do hummingbirds move?",
+        "result": "Fact 1: Hummingbirds can hover in mid-air by rapidly flapping their wings.\n\nQuestion: How do hummingbirds move?\nAnswer:\n\nMockingbirds can move their wings easily out of their regular routine, but"
+      },
+      "time": 1.011359691619873
+    },
+    {
+      "query": "What are domestic pets?",
+      "status": 200,
+      "response": {
+        "query": "What are domestic pets?",
+        "result": "Fact 1: Dogs are domesticated mammals, not natural wild animals.\n\nQuestion: What are domestic pets?\nAnswer:: To protect the animals and their owners from the pests they deal with, and the"
+      },
+      "time": 1.0108234882354736
+    },
+    {
+      "query": "Can birds fly?",
+      "status": 200,
+      "response": {
+        "query": "Can birds fly?",
+        "result": "Fact 1: Hummingbirds can hover in mid-air by rapidly flapping their wings.\n\nQuestion: Can birds fly?\nAnswer: (correct me if I'm wrong).\n\nAnswer from the National Academy of Human"
+      },
+      "time": 1.0134406089782715
+    },
+    {
+      "query": "What do dogs do?",
+      "status": 200,
+      "response": {
+        "query": "What do dogs do?",
+        "result": "Fact 1: Dogs are domesticated mammals, not natural wild animals.\n\nQuestion: What do dogs do?\nAnswer:\n\n1) The domestication of dogs means that there are two species of dog"
+      },
+      "time": 1.0154740810394287
+    },
+    {
+      "query": "Tell me about mammals",
+      "status": 200,
+      "response": {
+        "query": "Tell me about mammals",
+        "result": "Fact 1: Dogs are domesticated mammals, not natural wild animals.\n\nQuestion: Tell me about mammals\nAnswer::\n\nAnimate them only if they can be trained as natural wild animals."
+      },
+      "time": 1.0123317241668701
+    },
+    {
+      "query": "Tell me about cats",
+      "status": 200,
+      "response": {
+        "query": "Tell me about cats",
+        "result": "Fact 1: Cats are small furry carnivores that are often kept as pets.\n\nQuestion: Tell me about cats\nAnswer:,\nCats are small animals that often live and are very large\n\nThey"
+      },
+      "time": 1.0116276741027832
+    },
+    {
+      "query": "How do animals move?",
+      "status": 200,
+      "response": {
+        "query": "How do animals move?",
+        "result": "Fact 1: Dogs are domesticated mammals, not natural wild animals.\n\nQuestion: How do animals move?\nAnswer:\n\nThe animals move because of a host of reasons.\n\n1"
+      },
+      "time": 1.227095365524292
+    },
+    {
+      "query": "Can birds fly?",
+      "status": 200,
+      "response": {
+        "query": "Can birds fly?",
+        "result": "Fact 1: Hummingbirds can hover in mid-air by rapidly flapping their wings.\n\nQuestion: Can birds fly?\nAnswer:knots. I believe\n\nThat's right, if you were"
+      },
+      "time": 1.224085807800293
+    },
+    {
+      "query": "Which animals can hover in the air?",
+      "status": 200,
+      "response": {
+        "query": "Which animals can hover in the air?",
+        "result": "Fact 1: Hummingbirds can hover in mid-air by rapidly flapping their wings.\n\nQuestion: Which animals can hover in the air?\nAnswer: What animals can hover in the air?\n\nQuestion #1 is correct"
+      },
+      "time": 1.283935785293579
+    },
+    {
+      "query": "What are domestic pets?",
+      "status": 200,
+      "response": {
+        "query": "What are domestic pets?",
+        "result": "Fact 1: Dogs are domesticated mammals, not natural wild animals.\n\nQuestion: What are domestic pets?\nAnswer: a) wild dogs. The best known wild animals are cats,\ndogs"
+      },
+      "time": 1.2890479564666748
+    },
+    {
+      "query": "How do hummingbirds move?",
+      "status": 200,
+      "response": {
+        "query": "How do hummingbirds move?",
+        "result": "Fact 1: Hummingbirds can hover in mid-air by rapidly flapping their wings.\n\nQuestion: How do hummingbirds move?\nAnswer: is that just a matter of their wings getting lost?\n\nAnswer:"
+      },
+      "time": 1.295361042022705
+    },
+    {
+      "query": "Tell me about mammals",
+      "status": 200,
+      "response": {
+        "query": "Tell me about mammals",
+        "result": "Fact 1: Dogs are domesticated mammals, not natural wild animals.\n\nQuestion: Tell me about mammals\nAnswer: *How does dogs make themselves *What makes dogs make themselves *Who makes"
+      },
+      "time": 1.3042480945587158
+    },
+    {
+      "query": "How do animals move?",
+      "status": 200,
+      "response": {
+        "query": "How do animals move?",
+        "result": "Fact 1: Dogs are domesticated mammals, not natural wild animals.\n\nQuestion: How do animals move?\nAnswer: As you can see, dogs are domesticated mammals. Some domesticated animals do not move at all, but others"
+      },
+      "time": 1.9209516048431396
+    },
+    {
+      "query": "What do dogs do?",
+      "status": 200,
+      "response": {
+        "query": "What do dogs do?",
+        "result": "Fact 1: Dogs are domesticated mammals, not natural wild animals.\n\nQuestion: What do dogs do?\nAnswer: Dogs play a role in the domestication process for domesticated mammals. They create their own environment, such as litter"
+      },
+      "time": 1.9277336597442627
     }
   ]
 }
