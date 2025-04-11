@@ -3,9 +3,6 @@
     - First, check piazza: possible that worrying about this is unnecessary
 - Profile new KNN, K means, and ANN functions to make sure there is no glaring performance issue
     - If there is something, fix it
-- Check over batch processing mechanism
-- Try doing ANN with text-based dataset
-    - Hugging face BioAsq dataset
 
 
 ## Testing and Benchmarking
