@@ -12,6 +12,7 @@
 
 **NOTE:** For all of these tests, we conduct multiple trials for each test (e.g. 20) to make sure that we have stable numbers.
 
+### Part 1
 
 Task 1
 - CPU vs. GPU speed for Distance functions with varying dimensionality
@@ -27,3 +28,15 @@ Task 2
 - Test recall from varying K, num_clusters
 - GPU speed advantage for D=2,4,...1024
 - Compare numpy vs cupy vs torch.topk?
+
+### Part 2
+
+For Simple Version (no queueing/batching)
+- Measure the system throughput and latency (i.e., avg request completion time)
+- Report key metrics and analyse what is the system capacity? what is the current bottleneck?
+
+For Request Queue only (i.e. batch size = 1)
+- Measure throughput and latency again, and analyse the improvement
+
+For Request Queue AND Batching
+- Measure throughput and latency again, and analyse the improvement
