@@ -2,83 +2,96 @@ import numpy as np
 import cupy as cp
 import time
 import json
+# from distance_functions import (
+#         distance_l2_gpu, 
+#         distance_cosine_gpu,
+#         distance_dot_gpu,
+#         distance_manhattan_gpu,
+#         distance_l2_cpu, 
+#         distance_cosine_cpu,
+#         distance_dot_cpu,
+#         distance_manhattan_cpu,
+#         distance_l2_kmeans,
+#         distance_cosine_kmeans,
+#         distance_manhattan_kmeans,
+#         distance_dot_kmeans
+#     )
+
+# # ------------------------------------------------------------------------------------------------
+# # CPU 1.1a - Distance functions
+# # ------------------------------------------------------------------------------------------------
+
+# def distance_l2_cpu(A, X):
+#     return np.linalg.norm(A - X, axis=1)
 
 
-# ------------------------------------------------------------------------------------------------
-# CPU 1.1a - Distance functions
-# ------------------------------------------------------------------------------------------------
-
-def distance_l2_cpu(A, X):
-    return np.linalg.norm(A - X, axis=1)
-
-
-def distance_cosine_cpu(A, X):
-    A_norm = np.linalg.norm(A, axis=1)
-    X_norm = np.linalg.norm(X)
-    dot = A @ X
-    return 1 - (dot / (A_norm * X_norm + 1e-8))  # Avoid divide by 0
+# def distance_cosine_cpu(A, X):
+#     A_norm = np.linalg.norm(A, axis=1)
+#     X_norm = np.linalg.norm(X)
+#     dot = A @ X
+#     return 1 - (dot / (A_norm * X_norm + 1e-8))  # Avoid divide by 0
 
 
-def distance_manhattan_cpu(A, X):
-    return np.sum(np.abs(A - X), axis=1)
+# def distance_manhattan_cpu(A, X):
+#     return np.sum(np.abs(A - X), axis=1)
 
 
-def distance_dot_cpu(A, X):
-    return A @ X
+# def distance_dot_cpu(A, X):
+#     return A @ X
 
 
-# ----------------------------------------------------------------------------------
-#  CPU 1.1b - Distance functions for KMeans
-# ----------------------------------------------------------------------------------
+# # ----------------------------------------------------------------------------------
+# #  CPU 1.1b - Distance functions for KMeans
+# # ----------------------------------------------------------------------------------
 
-def distance_l2_kmeans_cpu(A, C):
-    # A: [N, D], C: [K, D]
-    return np.linalg.norm(A[:, np.newaxis, :] - C[np.newaxis, :, :], axis=2)
-
-
-def distance_cosine_kmeans_cpu(A, C):
-    A_norm = np.linalg.norm(A, axis=1, keepdims=True)  # Shape [N, 1]
-    C_norm = np.linalg.norm(C, axis=1, keepdims=True)  # Shape [K, 1]
-
-    sim = np.dot(A, C.T) / (A_norm * C_norm.T + 1e-8)  # Shape [N, K]
-
-    return 1 - sim  # Cosine distance, shape [N, K]
+# def distance_l2_kmeans_cpu(A, C):
+#     # A: [N, D], C: [K, D]
+#     return np.linalg.norm(A[:, np.newaxis, :] - C[np.newaxis, :, :], axis=2)
 
 
-def distance_dot_kmeans_cpu(A, C):
-    """Dot similarity (negated for distance)"""
-    return -A @ C.T  # Higher dot product = closer
+# def distance_cosine_kmeans_cpu(A, C):
+#     A_norm = np.linalg.norm(A, axis=1, keepdims=True)  # Shape [N, 1]
+#     C_norm = np.linalg.norm(C, axis=1, keepdims=True)  # Shape [K, 1]
+
+#     sim = np.dot(A, C.T) / (A_norm * C_norm.T + 1e-8)  # Shape [N, K]
+
+#     return 1 - sim  # Cosine distance, shape [N, K]
 
 
-def distance_manhattan_kmeans_cpu(A, C):
-    """Manhattan (L1) distance between A and centroids"""
-    return np.sum(np.abs(A[:, np.newaxis, :] - C[np.newaxis, :, :]), axis=2)
+# def distance_dot_kmeans_cpu(A, C):
+#     """Dot similarity (negated for distance)"""
+#     return -A @ C.T  # Higher dot product = closer
 
 
-# ------------------------------------------------------------------------------------------------
-# GPU 1.1a - Distance functions
-# ------------------------------------------------------------------------------------------------
-def distance_l2_gpu(X, Y):
-    return cp.linalg.norm(X - Y, axis=1)
+# def distance_manhattan_kmeans_cpu(A, C):
+#     """Manhattan (L1) distance between A and centroids"""
+#     return np.sum(np.abs(A[:, np.newaxis, :] - C[np.newaxis, :, :]), axis=2)
 
 
-def distance_cosine_gpu(A, X):
-    if X.ndim == 1:  # If X is a single vector, reshape it to [1, D]
-        X = X[cp.newaxis, :]  # Shape becomes [1, D]
-
-    A_norm = cp.linalg.norm(A, axis=1)  # [N]
-    X_norm = cp.linalg.norm(X)  # scalar
-    dot = cp.dot(A, X.T)  # [N, 1], dot product between A and X
-
-    return 1 - (dot.flatten() / (A_norm * X_norm + 1e-8))
+# # ------------------------------------------------------------------------------------------------
+# # GPU 1.1a - Distance functions
+# # ------------------------------------------------------------------------------------------------
+# def distance_l2_gpu(X, Y):
+#     return cp.linalg.norm(X - Y, axis=1)
 
 
-def distance_manhattan_gpu(X, Y):
-    return cp.sum(cp.abs(X - Y), axis=1)
+# def distance_cosine_gpu(A, X):
+#     if X.ndim == 1:  # If X is a single vector, reshape it to [1, D]
+#         X = X[cp.newaxis, :]  # Shape becomes [1, D]
+
+#     A_norm = cp.linalg.norm(A, axis=1)  # [N]
+#     X_norm = cp.linalg.norm(X)  # scalar
+#     dot = cp.dot(A, X.T)  # [N, 1], dot product between A and X
+
+#     return 1 - (dot.flatten() / (A_norm * X_norm + 1e-8))
 
 
-def distance_dot_gpu(X, Y):
-    return cp.dot(X, Y)
+# def distance_manhattan_gpu(X, Y):
+#     return cp.sum(cp.abs(X - Y), axis=1)
+
+
+# def distance_dot_gpu(X, Y):
+#     return cp.dot(X, Y)
 
 
 # ----------------------------------------------------------------------------------
@@ -231,13 +244,13 @@ def our_knn_raw_tiled(N, D, A, X, K):
 # ------------------------------------------------------------------------------------------------
 
 # Default - sklearn (CPU)
-from sklearn.cluster import KMeans
+# from sklearn.cluster import KMeans
 
 
-def kmeans_sklearn(N, D, A, K):
-    kmeans = KMeans(n_clusters=K)
-    kmeans.fit(A)
-    return kmeans.cluster_centers_, kmeans.labels_
+# def kmeans_sklearn(N, D, A, K):
+#     kmeans = KMeans(n_clusters=K)
+#     kmeans.fit(A)
+#     return kmeans.cluster_centers_, kmeans.labels_
 
 
 def kmeans_pp(N, D, A, K):
@@ -490,3 +503,66 @@ def our_ann(N, D, A, X, K, centroids, labels, distance_fn=distance_l2_gpu, centr
 # ------------------------------------------------------------------------------------------------
 # Test your code here
 # ------------------------------------------------------------------------------------------------
+
+
+if __name__=="__main__":
+    import csv 
+    def benchmark(func_cpu, func_gpu, dimensions, N=4096):
+        cpu_times = []
+        gpu_times = []
+
+        for D in dimensions:
+            A_cpu = np.random.rand(N, D).astype(np.float32)
+            X_cpu = np.random.rand(D).astype(np.float32)
+
+            A_gpu = cp.asarray(A_cpu)
+            X_gpu = cp.asarray(X_cpu)
+
+            # Warm-up GPU
+            func_gpu(A_gpu, X_gpu)
+            cp.cuda.Device(0).synchronize()
+
+            # Time CPU
+            start = time.time()
+            func_cpu(A_cpu, X_cpu)
+            print(f"CPU {D}")
+            cpu_times.append(time.time() - start)
+
+            # Time GPU
+            start = time.time()
+            func_gpu(A_gpu, X_gpu)
+            print(f"GPU {D}")
+            cp.cuda.Device(0).synchronize()
+            gpu_times.append(time.time() - start)
+
+        return cpu_times, gpu_times
+
+    # Run benchmarks for all distance functions
+    distance_tests = [
+        ("L2", distance_l2_cpu, distance_l2_gpu),
+        ("Cosine", distance_cosine_cpu, distance_cosine_gpu),
+        ("Manhattan", distance_manhattan_cpu, distance_manhattan_gpu),
+        ("Dot", distance_dot_cpu, distance_dot_gpu),
+    ]
+
+    dimensions = [2 ** i for i in range(1, 11)]  # 2, 4, 8, ..., 1024
+
+    results = {"Dimension": dimensions}
+
+    for name, func_cpu, func_gpu in distance_tests:
+        cpu_times, gpu_times = benchmark(func_cpu, func_gpu, dimensions)
+        results[f"{name}_CPU"] = cpu_times
+        results[f"{name}_GPU"] = gpu_times
+
+    # Write to CSV
+    output_file = "distance_benchmarks.csv"
+    fieldnames = ["Dimension"] + [f"{name}_{mode}" for name, _, _ in distance_tests for mode in ("CPU", "GPU")]
+
+    with open(output_file, mode='w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for i in range(len(dimensions)):
+            row = {key: results[key][i] for key in results}
+            writer.writerow(row)
+
+    print(f"Benchmark results saved to: {output_file}")
