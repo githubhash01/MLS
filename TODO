@@ -1,0 +1,39 @@
+## Implementation
+- Make sure KNN/ANN can handle large datasets -- implement batching mechanism to avoid OOM issues
+    - First, check piazza: possible that worrying about this is unnecessary
+- Profile new KNN, K means, and ANN functions to make sure there is no glaring performance issue
+    - If there is something, fix it
+
+
+## Testing and Benchmarking
+
+**NOTE:** For all of these tests, we conduct multiple trials for each test (e.g. 20) to make sure that we have stable numbers.
+
+### Part 1
+
+Task 1
+- CPU vs. GPU speed for Distance functions with varying dimensionality
+    - With fixed dataset size, compare the performance of CPU vs. GPU distance functions for varying D (2, 4, 8, 16, ..., 1024)
+    - The metric here should be **time** per calculation. 
+    - Visualise D vs. calculation time for CPU vs. GPU. Do this for all distance functions
+
+- GPU speed advantage for KNN using different distance functions
+    - vary N (size of dataset) and measure how long the calculations take (e.g. 4000 vs 4000000 vectors)
+
+
+Task 2
+- Test recall from varying K, num_clusters
+- GPU speed advantage for D=2,4,...1024
+- Compare numpy vs cupy vs torch.topk?
+
+### Part 2
+
+For Simple Version (no queueing/batching)
+- Measure the system throughput and latency (i.e., avg request completion time)
+- Report key metrics and analyse what is the system capacity? what is the current bottleneck?
+
+For Request Queue only (i.e. batch size = 1)
+- Measure throughput and latency again, and analyse the improvement
+
+For Request Queue AND Batching
+- Measure throughput and latency again, and analyse the improvement

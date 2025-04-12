@@ -6,7 +6,8 @@ import numpy as np
 import time
 import json
 from test import testdata_kmeans, testdata_knn, testdata_ann
-from sklearn.datasets import make_blobs
+# from sklearn.datasets import make_blobs
+from batched_task import kmeans_cupy_batched
 
 from distance_functions import (
         distance_l2_gpu, 
@@ -487,6 +488,7 @@ def compare_ann_recall_with_cupy(N, D, A_cpu, queries_cpu, K, num_clusters):
 
     centroids, labels = our_kmeans(N, D, A_gpu, num_clusters, distance_fn=distance_cosine_gpu, centroid_distance_fn=distance_cosine_kmeans)
 
+
     for i in range(Q):
         query_cpu = queries_cpu[i]
         query_gpu = cp.asarray(query_cpu)
@@ -499,6 +501,8 @@ def compare_ann_recall_with_cupy(N, D, A_cpu, queries_cpu, K, num_clusters):
         approx_indices, _ = our_ann(N, D, A_gpu, query_gpu, K, centroids, labels, distance_cosine_gpu, distance_cosine_kmeans, num_clusters)
         approx_set = set(cp.asnumpy(approx_indices))
 
+        print(approx_indices)
+
         # Compute recall@K
         hits = len(approx_set.intersection(true_set))
         total_recall += hits / K
@@ -510,32 +514,31 @@ def compare_ann_recall_with_cupy(N, D, A_cpu, queries_cpu, K, num_clusters):
     return avg_recall
 
 # Run the speedup measurements
-if __name__ == "__main__":
-    # test_distances()
-    # measure_speedup_knn(2**15, 20, 5)
-    # measure_speedup_kmeans(2**10, 2**10, 3)
-    # Generate data
+# if __name__ == "__main__":
+    # # test_distances()
+    # # measure_speedup_knn(2**15, 20, 5)
+    # # measure_speedup_kmeans(2**10, 2**10, 3)
+    # # Generate data
     # cp.random.seed(12345)
-    N, D = 2**10, 64
-    # A = cp.random.rand(N, D).astype(cp.float32)
+    # N, D = 2**10, 64
+    # # A = cp.random.rand(N, D).astype(cp.float32)
+    # # queries = cp.random.rand(100, D).astype(cp.float32)
+    # K = 5
+    # n_clusters = 20
+
+    # A, _ = make_blobs(n_samples=N, n_features=D, centers=n_clusters, random_state=12345)
+    # A = cp.array(A, dtype=cp.float32)
+    # min_A = cp.min(A, axis=0)
+    # max_A = cp.max(A, axis=0)
+
+    # # Generate random queries in the same feature space (same order of magnitude)
     # queries = cp.random.rand(100, D).astype(cp.float32)
-    K = 5
-    n_clusters = 20
+    # # Scale queries to be within the range of A
+    # queries = min_A + (max_A - min_A) * queries
 
-    A, _ = make_blobs(n_samples=N, n_features=D, centers=n_clusters, random_state=12345)
-    A = cp.array(A, dtype=cp.float32)
-    min_A = cp.min(A, axis=0)
-    max_A = cp.max(A, axis=0)
+    # compare_ann_recall_with_cupy(N, D, A, queries, K, num_clusters=n_clusters)
+    # # profile_gpu_knn(our_knn_cupy, 20, 2**20, 10)
+    # # profile_gpu_knn(our_knn_raw_tiled, 2**15, 20, 10)
 
-    # Generate random queries in the same feature space (same order of magnitude)
-    queries = cp.random.rand(100, D).astype(cp.float32)
-    # Scale queries to be within the range of A
-    queries = min_A + (max_A - min_A) * queries
-
-    compare_ann_recall_with_cupy(N, D, A, queries, K, num_clusters=n_clusters)
-    # profile_gpu_knn(our_knn_cupy, 20, 2**20, 10)
-    # profile_gpu_knn(our_knn_raw_tiled, 2**15, 20, 10)
-
-    # profile_knn(our_knn_raw, 100000, 10, 5)
-    # new_benchmark_knn(2**15, 20, 5)
-
+    # # profile_knn(our_knn_raw, 100000, 10, 5)
+    # # new_benchmark_knn(2**15, 20, 5)
