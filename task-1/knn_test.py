@@ -6,7 +6,7 @@ import csv
 
 from task_ import our_knn_cpu, our_knn_gpu
 
-from distance_functions import (
+from task_ import (
     distance_cosine_cpu, 
     distance_cosine_gpu, 
     distance_dot_cpu, 
