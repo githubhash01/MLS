@@ -414,7 +414,7 @@ def maximin_batched(N, D, A, K, dist_func, batch_size):
     return centers
 
 
-def kmeans_gpu_batched(N, D, A, K, max_iter=100, batch_size=16_000, dist_func=distance_l2_kmeans_gpu):
+def kmeans_gpu_batched(N, D, A, K, max_iter=100, batch_size=16_000, dist_func=distance_l2_kmeans_gpu, centroid_distance_fn=distance_l2_kmeans_gpu):
     # Upload full dataset onto GPU once
     A_gpu = cp.asarray(A, dtype=cp.float32)
     assignments = cp.zeros(N, dtype=cp.int32)
@@ -433,7 +433,7 @@ def kmeans_gpu_batched(N, D, A, K, max_iter=100, batch_size=16_000, dist_func=di
         for (start, end), stream in zip(batch_indices, streams):
             with stream:
                 # 1) Calculate distance of each point to centers for current batch
-                distances_batch = dist_func(A_gpu[start:end], centers)
+                distances_batch = centroid_distance_fn(A_gpu[start:end], centers)
 
                 # 2) Assign each point to closest center in the current batch.
                 new_assignments[start:end] = cp.argmin(distances_batch, axis=1)
@@ -499,6 +499,91 @@ def our_ann(N, D, A, X, K, centroids, labels, distance_fn=distance_l2_gpu, centr
     top_k_idx = cp.argsort(distances)[:K]
 
     return cluster_indices[top_k_idx], distances[top_k_idx]
+
+
+def our_ann_cpu(N, D, A, X, K, centroids, labels, distance_fn=distance_l2_cpu, centroid_distance_fn=distance_l2_kmeans_cpu,
+            num_clusters=100):
+    """
+    Approximate KNN using K-means clustering with selectable distance functions (on GPU with CuPy).
+
+    Input:
+        N: Number of vectors
+        D: Dimension of vectors
+        A[N, D]: Collection of vectors (CuPy array)
+        X[D]: Query vector (CuPy array)
+        K: Top K nearest neighbors to return
+        centroids[K, D]: Precomputed centroids from K-means
+        labels[N]: Precomputed labels (cluster assignments) from K-means
+        distance_fn: Function to compute distances from X to candidates (vectorized, returns [C])
+        num_clusters: Total number of clusters
+
+    Output:
+        indices[K]: Indices of approximate nearest neighbors
+        distances[K]: Distances to the nearest neighbors
+    """
+    X = X.reshape(1, D)
+
+    # Find closest centroid
+    centroid_distances = centroid_distance_fn(centroids, X)  # [K]
+    closest_cluster = np.argmin(centroid_distances)
+
+    # Select candidate points from that cluster
+    cluster_indices = np.where(labels == closest_cluster)[0]
+    candidates = A[cluster_indices]
+
+    if candidates.shape[0] == 0:
+        # Fallback to full dataset if cluster is empty
+        cluster_indices = np.arange(N)
+        candidates = A
+
+    # Compute distances to candidates and select top K
+    distances = distance_fn(candidates, X)  # [C]
+    top_k_idx = np.argsort(distances)[:K]
+
+    return cluster_indices[top_k_idx], distances[top_k_idx]
+
+def compare_ann_recall_with_cupy(N, D, A_cpu, queries_cpu, K, num_clusters, batch_size):
+    """
+    Compare ANN recall against exact KNN computed with CuPy.
+
+    Input:
+        N: Number of vectors
+        D: Dimension of vectors
+        A_cpu[N, D]: Dataset vectors (NumPy array)
+        queries_cpu[Q, D]: Query vectors (NumPy array)
+        K: Top K neighbors to retrieve
+        num_clusters: Number of clusters used in ANN
+
+    Output:
+        avg_recall: Average recall@K across all queries
+    """
+    A_gpu = cp.asarray(A_cpu)
+    Q = queries_cpu.shape[0]
+    total_recall = 0.0
+
+    centroids, labels = kmeans_gpu_batched(N, D, A_gpu, num_clusters, batch_size=batch_size, dist_func=distance_cosine_gpu, centroid_distance_fn=distance_cosine_kmeans_gpu)
+
+    for i in range(Q):
+        query_cpu = queries_cpu[i]
+        query_gpu = cp.asarray(query_cpu)
+
+        # Exact KNN on GPU
+        true_indices, _ = our_knn_gpu(N, D, A_gpu, query_gpu, K, distance_fn=distance_cosine_gpu)
+        true_set = set(cp.asnumpy(true_indices))
+
+        # ANN on CPU
+        approx_indices, _ = our_ann(N, D, A_gpu, query_gpu, K, centroids, labels, distance_cosine_gpu, distance_cosine_kmeans_gpu, num_clusters)
+        approx_set = set(cp.asnumpy(approx_indices))
+
+        # Compute recall@K
+        hits = len(approx_set.intersection(true_set))
+        total_recall += hits / K
+
+        # print("rec: ", len(approx_set & true_set) / K)
+
+    avg_recall = total_recall / Q
+    print(f"Recall@{K} over {Q} queries: {avg_recall:.4f}")
+    return avg_recall
 
 # ------------------------------------------------------------------------------------------------
 # Test your code here
