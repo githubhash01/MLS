@@ -1,9 +1,6 @@
-import numpy as np
-import cupy as cp
-import time
-import pandas as pd
 
-from task_ import our_ann, our_ann_cpu, distance_l2_cpu, distance_l2_kmeans_cpu, distance_l2_gpu, distance_l2_kmeans_gpu
+
+from task_ import our_ann, our_ann_cpu, distance_l2_cpu, distance_l2_kmeans_cpu, distance_l2_gpu, distance_l2_kmeans_gpu, kmeans_gpu_batched, our_kmeans_cpu
 
 import numpy as np
 import cupy as cp
@@ -45,6 +42,7 @@ def benchmark_ann_runtimes_to_csv_no_pandas(
 
                 # --- CPU timing
                 start_cpu = time.time()
+                centroids_cpu, labels_cpu = our_kmeans_cpu(N, D, A_gpu, num_clusters)
                 ann_cpu_fn(N, D, A_cpu, X_cpu, K, centroids_cpu, labels_cpu,
                            distance_fn=distance_fn_cpu,
                            centroid_distance_fn=centroid_distance_fn_cpu,
@@ -53,6 +51,7 @@ def benchmark_ann_runtimes_to_csv_no_pandas(
 
                 # --- GPU timing
                 start_gpu = time.time()
+                centroids_gpu, labels_gpu = kmeans_gpu_batched(N, D, A_gpu, num_clusters, batch_size=16000, dist_func=distance_l2_kmeans_gpu)
                 ann_gpu_fn(N, D, A_gpu, X_gpu, K, centroids_gpu, labels_gpu,
                            distance_fn=distance_fn_gpu,
                            centroid_distance_fn=centroid_distance_fn_gpu,
@@ -65,8 +64,8 @@ def benchmark_ann_runtimes_to_csv_no_pandas(
 
     print(f"\n✅ Results saved to: {output_csv_path}")
 
-N_values = [2**i for i in range(12, 20, 2)]
-D_values = [2**i for i in range(6, 9)]
+N_values = [2**12] # 2**i for i in range(12, 20, 2)]
+D_values = [2**i for i in range(1, 11)]
 K = 5
 num_clusters = 20
 

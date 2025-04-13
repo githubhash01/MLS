@@ -43,6 +43,61 @@ def distance_dot_cpu(A, X):
 # # ----------------------------------------------------------------------------------
 # #  CPU 1.1b - Distance functions for KMeans
 # # ----------------------------------------------------------------------------------
+dist_kernel = cp.RawKernel(r'''
+extern "C" _global_ void calc_distances(const float *data,
+                                            const float *centers,
+                                            int N, int K, int D,
+                                            float *dist)
+{
+    int point = blockDim.x * blockIdx.x + threadIdx.x;
+    int cluster = blockDim.y * blockIdx.y + threadIdx.y;
+
+    if (point < N && cluster < K) {
+        float sum = 0.0f;
+        for (int d = 0; d < D; d++) {
+            float diff = data[point * D + d] - centers[cluster * D + d];
+            sum += diff * diff;
+        }
+        dist[point * K + cluster] = sqrtf(sum);
+    }
+}
+''', 'calc_distances')
+
+
+def distance_l2_kmeans_kernel(A, C):
+    """
+    Compute the pairwise squared L2 distances between points in A and centers in C
+    using a modified custom CUDA kernel that is optimized for high dimension.
+
+    Parameters:
+      A : cp.ndarray, shape (N, D) - Data points.
+      C : cp.ndarray, shape (K, D) - Cluster centers.
+
+    Returns:
+      cp.ndarray of shape (N, K) with the squared L2 distances.
+    """
+    # Convert input arrays to float32 explicitly.
+    A = cp.asarray(A, dtype=cp.float32)
+    C = cp.asarray(C, dtype=cp.float32)
+    N, D = A.shape
+    K = C.shape[0]
+
+    # Allocate output array for distances.
+    dist = cp.zeros((N, K), dtype=cp.float32)
+
+    # Define block and grid dimensions. Tune block size based on your GPU.
+    block_x = 8
+    block_y = 8
+    grid_x = (N + block_x - 1) // block_x
+    grid_y = (K + block_y - 1) // block_y
+    grid = (grid_x, grid_y)
+    block = (block_x, block_y)
+
+    # Launch the kernel.
+    dist_kernel(grid, block, (A, C, N, K, D, dist))
+
+    return dist
+
 
 def distance_l2_kmeans_cpu(A, C):
     # A: [N, D], C: [K, D]
@@ -414,7 +469,7 @@ def maximin_batched(N, D, A, K, dist_func, batch_size):
     return centers
 
 
-def kmeans_gpu_batched(N, D, A, K, max_iter=100, batch_size=16_000, dist_func=distance_l2_kmeans_gpu, centroid_distance_fn=distance_l2_kmeans_gpu):
+def kmeans_gpu_batched(N, D, A, K, max_iter=100, batch_size=16_000, dist_func=distance_l2_kmeans_kernel): #, centroid_distance_fn=distance_l2_kmeans_kernel):
     # Upload full dataset onto GPU once
     A_gpu = cp.asarray(A, dtype=cp.float32)
     assignments = cp.zeros(N, dtype=cp.int32)
@@ -433,7 +488,7 @@ def kmeans_gpu_batched(N, D, A, K, max_iter=100, batch_size=16_000, dist_func=di
         for (start, end), stream in zip(batch_indices, streams):
             with stream:
                 # 1) Calculate distance of each point to centers for current batch
-                distances_batch = centroid_distance_fn(A_gpu[start:end], centers)
+                distances_batch = dist_func(A_gpu[start:end], centers)
 
                 # 2) Assign each point to closest center in the current batch.
                 new_assignments[start:end] = cp.argmin(distances_batch, axis=1)

@@ -48,17 +48,17 @@ def benchmark_all_knn():
             print(f"  Testing {name}...")
 
             # Warm-up GPU
-            our_knn_gpu(N, D, A_gpu, X_gpu, K, distance_func=gpu_func)
+            our_knn_gpu(N, D, A_gpu, X_gpu, K, distance_fn=gpu_func)
             cp.cuda.Device(0).synchronize()
 
             # CPU time
             start = time.time()
-            our_knn_cpu(N, D, A_cpu, X_cpu, K, distance_func=cpu_func)
+            our_knn_cpu(N, D, A_cpu, X_cpu, K, distance_fn=cpu_func)
             cpu_time = time.time() - start
 
             # GPU time
             start = time.time()
-            our_knn_gpu(N, D, A_gpu, X_gpu, K, distance_func=gpu_func)
+            our_knn_gpu(N, D, A_gpu, X_gpu, K, distance_fn=gpu_func)
             cp.cuda.Device(0).synchronize()
             gpu_time = time.time() - start
 

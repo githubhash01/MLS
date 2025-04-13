@@ -5,6 +5,9 @@ from transformers import AutoTokenizer, AutoModel, pipeline
 import pickle
 import os
 import cupy as cp
+import numpy as np
+import csv
+import time
 
 from task import compare_ann_recall_with_cupy
 
@@ -119,6 +122,26 @@ def load_or_create_embeddings():
 
 
 if __name__ == "__main__":
+    # documents, document_answers, doc_embeddings = load_or_create_embeddings()
+    # # print(documents[0])
+    # # print(document_answers[documents[0]])
+
+    # print(doc_embeddings.shape)
+    # #
+    # A = doc_embeddings
+
+    # K = 1
+    # n_clusters = 1
+    # queries = get_embedding(documents[0:50])
+    # N, D = A.shape[0], A.shape[1]
+
+    # batch_sizes = [2**i for i in range(1, 30)]
+    # for batch in batch_sizes:
+    #     start = time.time()
+    #     compare_ann_recall_with_cupy(N, D, A, queries, K, num_clusters=n_clusters)
+    #     end = time.time()
+
+    #     print(f"{batch} time: {end-start}")
     documents, document_answers, doc_embeddings = load_or_create_embeddings()
     # print(documents[0])
     # print(document_answers[documents[0]])
@@ -127,9 +150,38 @@ if __name__ == "__main__":
     #
     A = doc_embeddings
 
-    K = 3
-    n_clusters = 100
+    K_values = [1, 3, 5, 10, 15, 20]  # Different values of K (number of nearest neighbors)
+    n_clusters_values = [1, 3, 5, 8, 10, 20, 30, 40, 50, 100, 200]
+
+
     queries = get_embedding(documents[0:50])
     N, D = A.shape[0], A.shape[1]
 
-    compare_ann_recall_with_cupy(N, D, A, queries, K, num_clusters=n_clusters)
+    recall_results = []
+    for K in K_values:
+        for num_clusters in n_clusters_values:
+            print(f"Testing K={K}, num_clusters={num_clusters}...")
+
+            # Compute average recall for the current combination of K and num_clusters
+            start = time.time()
+            average_recall = compare_ann_recall_with_cupy(N, D, A, queries, K, num_clusters)
+            end = time.time()
+
+
+            # Save the result for later analysis
+            recall_results.append((K, num_clusters, average_recall, float(end-start)))
+            print(f"  Average recall: {average_recall:.4f}")
+
+    # compare_ann_recall_with_cupy(N, D, A, queries, K, num_clusters=n_clusters)
+
+    # Convert results to a numpy array for easy manipulation and analysis
+    recall_results = np.array(recall_results)
+
+    # Save the results to a CSV file for later analysis
+    csv_file = "knn_recall_vs_clusters.csv"
+    with open(csv_file, mode="w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["K", "n_clusters", "Average Recall", "Runtime"])  # Header
+        writer.writerows(recall_results)  # Write the rows of results
+
+    print(f"\n✅ Benchmarking complete. Results saved to '{csv_file}'")

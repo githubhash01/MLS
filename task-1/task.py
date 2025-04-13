@@ -501,13 +501,13 @@ def compare_ann_recall_with_cupy(N, D, A_cpu, queries_cpu, K, num_clusters):
         approx_indices, _ = our_ann(N, D, A_gpu, query_gpu, K, centroids, labels, distance_cosine_gpu, distance_cosine_kmeans, num_clusters)
         approx_set = set(cp.asnumpy(approx_indices))
 
-        print(approx_indices)
+        # print(approx_indices)
 
         # Compute recall@K
         hits = len(approx_set.intersection(true_set))
         total_recall += hits / K
 
-        print("rec: ", len(approx_set & true_set) / K)
+        # print("rec: ", len(approx_set & true_set) / K)
 
     avg_recall = total_recall / Q
     print(f"Recall@{K} over {Q} queries: {avg_recall:.4f}")
